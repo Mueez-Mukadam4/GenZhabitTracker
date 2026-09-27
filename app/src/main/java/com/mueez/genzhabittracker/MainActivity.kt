@@ -20,8 +20,9 @@ class MainActivity : ComponentActivity() {
         setContent {
             GenZhabitTrackerTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
+                    Text(
+
+                        text = "GenZhabit Tracker",
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
