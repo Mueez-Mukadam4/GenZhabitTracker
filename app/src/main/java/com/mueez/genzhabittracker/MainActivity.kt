@@ -11,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.mueez.genzhabittracker.presentation.screens.splash.SplashScreen
 import com.mueez.genzhabittracker.ui.theme.GenZhabitTrackerTheme
 
 class MainActivity : ComponentActivity() {
@@ -19,30 +20,9 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             GenZhabitTrackerTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Text(
-
-                        text = "GenZhabit Tracker",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+                SplashScreen()
             }
         }
     }
 }
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    GenZhabitTrackerTheme {
-        Greeting("Android")
-    }
-}
