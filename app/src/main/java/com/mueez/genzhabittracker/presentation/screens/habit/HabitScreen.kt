@@ -7,10 +7,15 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -21,18 +26,26 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.mueez.genzhabittracker.data.database.DatabaseProvider
+import com.mueez.genzhabittracker.data.model.Habit
+import com.mueez.genzhabittracker.data.repository.HabitRepository
+import com.mueez.genzhabittracker.viewmodel.HabitViewModel
+import com.mueez.genzhabittracker.viewmodel.HabitViewModelFactory
 
-
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HabitScreen() {
+fun HabitScreen(
+    navController: NavController
+) {
+
+    val habitDao = DatabaseProvider.database.habitDao()
+    val habitRepository = HabitRepository(habitDao)
+    val factory = HabitViewModelFactory(habitRepository)
+
+    val habitViewModel: HabitViewModel = viewModel(
+        factory = factory
+    )
 
     var habitName by remember {
         mutableStateOf("")
@@ -50,9 +63,30 @@ fun HabitScreen() {
         modifier = Modifier
             .fillMaxSize()
             .padding(24.dp),
-        verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+
+        // Top-left back arrow
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Start
+        ) {
+            TextButton(
+                onClick = {
+                    navController.popBackStack()
+                }
+            ) {
+                Text(
+                    text = "←",
+                    fontSize = 28.sp,
+                    color = Color.Black
+                )
+            }
+        }
+
+        Spacer(
+            modifier = Modifier.height(20.dp)
+        )
 
         Text(
             text = "Create a Habit",
@@ -89,65 +123,49 @@ fun HabitScreen() {
                 cursorColor = Color.Black
             )
         )
-        ExposedDropdownMenuBox(
+
+        Spacer(
+            modifier = Modifier.height(16.dp)
+        )
+
+        TextButton(
+            onClick = {
+                frequencyExpanded = true
+            }
+        ) {
+            Text(
+                text = "Frequency: $frequency",
+                color = Color.Black,
+                fontSize = 16.sp
+            )
+        }
+
+        DropdownMenu(
             expanded = frequencyExpanded,
-            onExpandedChange = {
-                frequencyExpanded = !frequencyExpanded
+            onDismissRequest = {
+                frequencyExpanded = false
             }
         ) {
 
-            OutlinedTextField(
-                value = frequency,
-                onValueChange = {},
-                readOnly = true,
-                label = {
-                    Text(
-                        text = "Frequency",
-                        color = Color.Black
-                    )
+            DropdownMenuItem(
+                text = {
+                    Text("Daily")
                 },
-                trailingIcon = {
-                    ExposedDropdownMenuDefaults.TrailingIcon(
-                        expanded = frequencyExpanded
-                    )
-                },
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedTextColor = Color.Black,
-                    unfocusedTextColor = Color.Black,
-                    focusedLabelColor = Color.Black,
-                    unfocusedLabelColor = Color.Black,
-                    cursorColor = Color.Black
-                ),
-                modifier = Modifier.menuAnchor()
-            )
-
-            ExposedDropdownMenu(
-                expanded = frequencyExpanded,
-                onDismissRequest = {
+                onClick = {
+                    frequency = "Daily"
                     frequencyExpanded = false
                 }
-            ) {
+            )
 
-                DropdownMenuItem(
-                    text = {
-                        Text("Daily")
-                    },
-                    onClick = {
-                        frequency = "Daily"
-                        frequencyExpanded = false
-                    }
-                )
-
-                DropdownMenuItem(
-                    text = {
-                        Text("Weekly")
-                    },
-                    onClick = {
-                        frequency = "Weekly"
-                        frequencyExpanded = false
-                    }
-                )
-            }
+            DropdownMenuItem(
+                text = {
+                    Text("Weekly")
+                },
+                onClick = {
+                    frequency = "Weekly"
+                    frequencyExpanded = false
+                }
+            )
         }
 
         Spacer(
@@ -156,7 +174,17 @@ fun HabitScreen() {
 
         Button(
             onClick = {
-                // Save habit logic will be added later
+                if (habitName.isNotBlank()) {
+
+                    val habit = Habit(
+                        name = habitName,
+                        frequency = frequency
+                    )
+
+                    habitViewModel.addHabit(habit)
+
+                    navController.popBackStack()
+                }
             }
         ) {
             Text(
