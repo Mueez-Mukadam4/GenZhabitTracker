@@ -1,4 +1,3 @@
-
 package com.mueez.genzhabittracker.presentation.navigation
 
 import androidx.compose.runtime.Composable
@@ -14,6 +13,7 @@ import androidx.navigation.compose.rememberNavController
 
 import com.mueez.genzhabittracker.data.database.DatabaseProvider
 import com.mueez.genzhabittracker.data.model.Habit
+import com.mueez.genzhabittracker.data.model.HabitCompletion
 import com.mueez.genzhabittracker.data.repository.HabitRepository
 import com.mueez.genzhabittracker.presentation.screens.calendar.CalendarScreen
 import com.mueez.genzhabittracker.presentation.screens.edit.EditHabitScreen
@@ -53,8 +53,18 @@ fun NavGraph() {
         composable("calendar") {
 
             val habitDao = DatabaseProvider.database.habitDao()
-            val habitRepository = HabitRepository(habitDao)
-            val factory = HabitViewModelFactory(habitRepository)
+
+            val habitCompletionDao =
+                DatabaseProvider.database.habitCompletionDao()
+
+            val habitRepository = HabitRepository(
+                habitDao,
+                habitCompletionDao
+            )
+
+            val factory = HabitViewModelFactory(
+                habitRepository
+            )
 
             val habitViewModel: HabitViewModel = viewModel(
                 factory = factory
@@ -64,16 +74,31 @@ fun NavGraph() {
                 mutableStateOf<List<Habit>>(emptyList())
             }
 
+            var completions by remember {
+                mutableStateOf<List<HabitCompletion>>(emptyList())
+            }
+
             LaunchedEffect(Unit) {
 
                 habitViewModel.getAllHabits { result ->
                     habits = result
+
+                    result.forEach { habit ->
+
+                        habitViewModel.getCompletionsForHabit(
+                            habit.id
+                        ) { result ->
+
+                            completions = completions + result
+                        }
+                    }
                 }
             }
 
             CalendarScreen(
                 navController = navController,
-                habits = habits
+                habits = habits,
+                completions = completions
             )
         }
 
@@ -90,9 +115,20 @@ fun NavGraph() {
 
             if (habitId != null) {
 
-                val habitDao = DatabaseProvider.database.habitDao()
-                val habitRepository = HabitRepository(habitDao)
-                val factory = HabitViewModelFactory(habitRepository)
+                val habitDao =
+                    DatabaseProvider.database.habitDao()
+
+                val habitCompletionDao =
+                    DatabaseProvider.database.habitCompletionDao()
+
+                val habitRepository = HabitRepository(
+                    habitDao,
+                    habitCompletionDao
+                )
+
+                val factory = HabitViewModelFactory(
+                    habitRepository
+                )
 
                 val habitViewModel: HabitViewModel = viewModel(
                     factory = factory
@@ -117,4 +153,3 @@ fun NavGraph() {
         }
     }
 }
-

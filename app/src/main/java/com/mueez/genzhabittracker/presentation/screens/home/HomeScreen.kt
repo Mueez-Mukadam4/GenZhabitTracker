@@ -22,8 +22,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+
 import com.mueez.genzhabittracker.data.database.DatabaseProvider
 import com.mueez.genzhabittracker.data.model.Habit
+import com.mueez.genzhabittracker.data.model.HabitCompletion
 import com.mueez.genzhabittracker.data.repository.HabitRepository
 import com.mueez.genzhabittracker.viewmodel.HabitViewModel
 import com.mueez.genzhabittracker.presentation.components.HabitCard
@@ -35,8 +37,18 @@ fun HomeScreen(
 ) {
 
     val habitDao = DatabaseProvider.database.habitDao()
-    val habitRepository = HabitRepository(habitDao)
-    val factory = HabitViewModelFactory(habitRepository)
+
+    val habitCompletionDao =
+        DatabaseProvider.database.habitCompletionDao()
+
+    val habitRepository = HabitRepository(
+        habitDao,
+        habitCompletionDao
+    )
+
+    val factory = HabitViewModelFactory(
+        habitRepository
+    )
 
     val habitViewModel: HabitViewModel = viewModel(
         factory = factory
@@ -69,7 +81,6 @@ fun HomeScreen(
             text = "GenZhabit Tracker",
             fontSize = 14.sp
         )
-
 
         Spacer(
             modifier = Modifier.height(8.dp)
@@ -163,6 +174,19 @@ fun HomeScreen(
 
                         habitViewModel.updateHabit(updatedHabit)
 
+                        if (updatedHabit.isCompleted) {
+
+                            val completion = HabitCompletion(
+                                habitId = updatedHabit.id,
+                                completedDate = java.text.SimpleDateFormat(
+                                    "yyyy-MM-dd",
+                                    java.util.Locale.getDefault()
+                                ).format(java.util.Date())
+                            )
+
+                            habitViewModel.saveCompletionIfNeeded(completion)
+                        }
+
                         habitViewModel.getAllHabits { updatedHabits ->
                             habits = updatedHabits
                         }
@@ -179,7 +203,9 @@ fun HomeScreen(
 
                     onEdit = { habitToEdit ->
 
-                        navController.navigate("edit/${habitToEdit.id}")
+                        navController.navigate(
+                            "edit/${habitToEdit.id}"
+                        )
                     }
                 )
 
@@ -203,6 +229,7 @@ fun HomeScreen(
                 text = "+ Create Habit"
             )
         }
+
         Spacer(
             modifier = Modifier.height(12.dp)
         )

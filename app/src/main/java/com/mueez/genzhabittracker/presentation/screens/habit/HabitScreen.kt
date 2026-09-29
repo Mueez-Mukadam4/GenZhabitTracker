@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.lifecycle.viewmodel.compose.viewModel
+
 import com.mueez.genzhabittracker.data.database.DatabaseProvider
 import com.mueez.genzhabittracker.data.model.Habit
 import com.mueez.genzhabittracker.data.repository.HabitRepository
@@ -40,8 +41,18 @@ fun HabitScreen(
 ) {
 
     val habitDao = DatabaseProvider.database.habitDao()
-    val habitRepository = HabitRepository(habitDao)
-    val factory = HabitViewModelFactory(habitRepository)
+
+    val habitCompletionDao =
+        DatabaseProvider.database.habitCompletionDao()
+
+    val habitRepository = HabitRepository(
+        habitDao,
+        habitCompletionDao
+    )
+
+    val factory = HabitViewModelFactory(
+        habitRepository
+    )
 
     val habitViewModel: HabitViewModel = viewModel(
         factory = factory
@@ -71,6 +82,7 @@ fun HabitScreen(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Start
         ) {
+
             TextButton(
                 onClick = {
                     navController.popBackStack()
@@ -174,6 +186,7 @@ fun HabitScreen(
 
         Button(
             onClick = {
+
                 if (habitName.isNotBlank()) {
 
                     val habit = Habit(

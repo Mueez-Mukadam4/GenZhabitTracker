@@ -23,6 +23,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+
+
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import com.mueez.genzhabittracker.data.database.DatabaseProvider
 import com.mueez.genzhabittracker.data.model.Habit
 import com.mueez.genzhabittracker.data.repository.HabitRepository
@@ -36,8 +39,18 @@ fun EditHabitScreen(
 ) {
 
     val habitDao = DatabaseProvider.database.habitDao()
-    val habitRepository = HabitRepository(habitDao)
-    val factory = HabitViewModelFactory(habitRepository)
+
+    val habitCompletionDao =
+        DatabaseProvider.database.habitCompletionDao()
+
+    val habitRepository = HabitRepository(
+        habitDao,
+        habitCompletionDao
+    )
+
+    val factory = HabitViewModelFactory(
+        habitRepository
+    )
 
     val habitViewModel: HabitViewModel = viewModel(
         factory = factory
@@ -61,7 +74,6 @@ fun EditHabitScreen(
             .padding(24.dp)
     ) {
 
-        // Back Arrow
         TextButton(
             onClick = {
                 navController.popBackStack()
@@ -78,7 +90,6 @@ fun EditHabitScreen(
             modifier = Modifier.height(16.dp)
         )
 
-        // Title
         Text(
             text = "Edit Habit",
             fontSize = 28.sp,
@@ -89,22 +100,30 @@ fun EditHabitScreen(
             modifier = Modifier.height(24.dp)
         )
 
-        // Habit Name
         OutlinedTextField(
             value = habitName,
             onValueChange = {
                 habitName = it
             },
             label = {
-                Text("Habit name")
-            }
+                Text(
+                    text = "Habit name",
+                    color = Color.Black
+                )
+            },
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedTextColor = Color.Black,
+                unfocusedTextColor = Color.Black,
+                focusedLabelColor = Color.Black,
+                unfocusedLabelColor = Color.Black,
+                cursorColor = Color.Black
+            )
         )
 
         Spacer(
             modifier = Modifier.height(16.dp)
         )
 
-        // Frequency
         TextButton(
             onClick = {
                 frequencyExpanded = true
@@ -147,7 +166,6 @@ fun EditHabitScreen(
             modifier = Modifier.height(16.dp)
         )
 
-        // Update Button
         Button(
             onClick = {
 

@@ -1,4 +1,3 @@
-
 package com.mueez.genzhabittracker.presentation.screens.calendar
 
 import androidx.compose.runtime.Composable
@@ -32,11 +31,13 @@ import java.util.Date
 import java.util.Locale
 
 import com.mueez.genzhabittracker.data.model.Habit
+import com.mueez.genzhabittracker.data.model.HabitCompletion
 
 @Composable
 fun CalendarScreen(
     navController: NavController,
-    habits: List<Habit>
+    habits: List<Habit>,
+    completions: List<HabitCompletion>
 ) {
 
     val today = SimpleDateFormat(
@@ -54,7 +55,6 @@ fun CalendarScreen(
         Locale.getDefault()
     ).format(Date())
 
-    // Calendar information
     val calendar = java.util.Calendar.getInstance()
 
     val year = calendar.get(
@@ -65,7 +65,6 @@ fun CalendarScreen(
         java.util.Calendar.MONTH
     )
 
-    // Find the weekday of the first day of the month
     calendar.set(
         java.util.Calendar.DAY_OF_MONTH,
         1
@@ -75,7 +74,6 @@ fun CalendarScreen(
         java.util.Calendar.DAY_OF_WEEK
     )
 
-    // Calculate number of days in current month
     val daysInMonth = when (month) {
 
         java.util.Calendar.FEBRUARY -> {
@@ -212,7 +210,6 @@ fun CalendarScreen(
             modifier = Modifier.height(12.dp)
         )
 
-        // Weekday labels
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
@@ -230,7 +227,6 @@ fun CalendarScreen(
             modifier = Modifier.height(12.dp)
         )
 
-        // Dynamic calendar grid
         val totalCells =
             (firstDayOfMonth - 1) + daysInMonth
 
@@ -282,8 +278,6 @@ fun CalendarScreen(
                                         .padding(8.dp)
                                 )
 
-                                // Show completion indicator
-                                // only for today's date
                                 if (
                                     day == dayNumber.toInt() &&
                                     completedHabits > 0
@@ -319,10 +313,31 @@ fun CalendarScreen(
             modifier = Modifier.height(12.dp)
         )
 
-        Text(
-            text = "No habit history yet.",
-            fontSize = 16.sp
-        )
+        if (completions.isEmpty()) {
+
+            Text(
+                text = "No habit history yet.",
+                fontSize = 16.sp
+            )
+
+        } else {
+
+            completions
+                .map { it.completedDate }
+                .distinct()
+                .sortedDescending()
+                .forEach { date ->
+
+                    Text(
+                        text = "✓ $date",
+                        fontSize = 16.sp
+                    )
+
+                    Spacer(
+                        modifier = Modifier.height(6.dp)
+                    )
+                }
+        }
 
         Spacer(
             modifier = Modifier.height(8.dp)
@@ -334,4 +349,3 @@ fun CalendarScreen(
         )
     }
 }
-
