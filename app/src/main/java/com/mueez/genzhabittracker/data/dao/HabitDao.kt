@@ -15,6 +15,9 @@ interface HabitDao {
     @Query("SELECT * FROM habits")
     suspend fun getAllHabits(): List<Habit>
 
+    @Query("SELECT * FROM habits WHERE id = :habitId")
+    suspend fun getHabitById(habitId: Int): Habit?
+
     @Update
     suspend fun updateHabit(habit: Habit)
 

@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
@@ -25,6 +26,7 @@ import com.mueez.genzhabittracker.data.database.DatabaseProvider
 import com.mueez.genzhabittracker.data.model.Habit
 import com.mueez.genzhabittracker.data.repository.HabitRepository
 import com.mueez.genzhabittracker.viewmodel.HabitViewModel
+import com.mueez.genzhabittracker.presentation.components.HabitCard
 import com.mueez.genzhabittracker.viewmodel.HabitViewModelFactory
 
 @Composable
@@ -63,6 +65,12 @@ fun HomeScreen(
             fontSize = 28.sp
         )
 
+        Text(
+            text = "GenZhabit Tracker",
+            fontSize = 14.sp
+        )
+
+
         Spacer(
             modifier = Modifier.height(8.dp)
         )
@@ -85,8 +93,18 @@ fun HomeScreen(
             modifier = Modifier.height(12.dp)
         )
 
+        val completedHabits = habits.count {
+            it.isCompleted
+        }
+
+        val progress = if (habits.isNotEmpty()) {
+            (completedHabits * 100) / habits.size
+        } else {
+            0
+        }
+
         Text(
-            text = "0% Complete",
+            text = "$progress% Complete",
             fontSize = 18.sp
         )
 
@@ -95,7 +113,13 @@ fun HomeScreen(
         )
 
         Text(
-            text = "Start your first habit to begin tracking your progress.",
+            text = if (habits.isEmpty()) {
+                "Start your first habit to begin tracking your progress."
+            } else if (progress == 100) {
+                "Amazing! You completed all your habits today. 🎉"
+            } else {
+                "Keep going! Every small step counts. 💪"
+            },
             fontSize = 14.sp
         )
 
@@ -132,13 +156,35 @@ fun HomeScreen(
 
             habits.forEach { habit ->
 
-                Text(
-                    text = "${habit.name} • ${habit.frequency}",
-                    fontSize = 16.sp
+                HabitCard(
+                    habit = habit,
+
+                    onCompletionChanged = { updatedHabit ->
+
+                        habitViewModel.updateHabit(updatedHabit)
+
+                        habitViewModel.getAllHabits { updatedHabits ->
+                            habits = updatedHabits
+                        }
+                    },
+
+                    onDelete = { habitToDelete ->
+
+                        habitViewModel.deleteHabit(habitToDelete)
+
+                        habitViewModel.getAllHabits { updatedHabits ->
+                            habits = updatedHabits
+                        }
+                    },
+
+                    onEdit = { habitToEdit ->
+
+                        navController.navigate("edit/${habitToEdit.id}")
+                    }
                 )
 
                 Spacer(
-                    modifier = Modifier.height(8.dp)
+                    modifier = Modifier.height(12.dp)
                 )
             }
         }
@@ -150,10 +196,47 @@ fun HomeScreen(
         Button(
             onClick = {
                 navController.navigate("habit")
-            }
+            },
+            modifier = Modifier.fillMaxWidth()
         ) {
             Text(
-                text = "Create Habit"
+                text = "+ Create Habit"
+            )
+        }
+        Spacer(
+            modifier = Modifier.height(12.dp)
+        )
+
+        Text(
+            text = "Plan & Reflect",
+            fontSize = 20.sp
+        )
+
+        Spacer(
+            modifier = Modifier.height(4.dp)
+        )
+
+        Text(
+            text = "Review your habit progress and stay consistent.",
+            fontSize = 14.sp
+        )
+
+        Spacer(
+            modifier = Modifier.height(12.dp)
+        )
+
+        Spacer(
+            modifier = Modifier.height(12.dp)
+        )
+
+        Button(
+            onClick = {
+                navController.navigate("calendar")
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(
+                text = "📅 Calendar"
             )
         }
     }

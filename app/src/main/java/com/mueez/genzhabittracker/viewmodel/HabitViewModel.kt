@@ -25,6 +25,15 @@ class HabitViewModel(
             onResult(habits)
         }
     }
+    fun getHabitById(
+        habitId: Int,
+        onResult: (Habit?) -> Unit
+    ) {
+        viewModelScope.launch {
+            val habit = repository.getHabitById(habitId)
+            onResult(habit)
+        }
+    }
 
     fun updateHabit(habit: Habit) {
         viewModelScope.launch {
