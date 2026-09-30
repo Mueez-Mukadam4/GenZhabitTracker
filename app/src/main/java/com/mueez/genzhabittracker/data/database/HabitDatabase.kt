@@ -10,15 +10,18 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 
 import com.mueez.genzhabittracker.data.dao.HabitCompletionDao
 import com.mueez.genzhabittracker.data.dao.HabitDao
+import com.mueez.genzhabittracker.data.dao.TodoDao
 import com.mueez.genzhabittracker.data.model.Habit
 import com.mueez.genzhabittracker.data.model.HabitCompletion
+import com.mueez.genzhabittracker.data.model.Todo
 
 @Database(
     entities = [
         Habit::class,
-        HabitCompletion::class
+        HabitCompletion::class,
+        Todo::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 abstract class HabitDatabase : RoomDatabase() {
@@ -26,6 +29,8 @@ abstract class HabitDatabase : RoomDatabase() {
     abstract fun habitDao(): HabitDao
 
     abstract fun habitCompletionDao(): HabitCompletionDao
+
+    abstract fun todoDao(): TodoDao
 
     companion object {
 
@@ -50,6 +55,24 @@ abstract class HabitDatabase : RoomDatabase() {
             }
         }
 
+        val MIGRATION_2_3 = object : Migration(2, 3) {
+
+            override fun migrate(
+                database: SupportSQLiteDatabase
+            ) {
+
+                database.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS todos (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        title TEXT NOT NULL,
+                        isCompleted INTEGER NOT NULL
+                    )
+                    """.trimIndent()
+                )
+            }
+        }
+
         fun getDatabase(context: Context): HabitDatabase {
 
             return INSTANCE ?: synchronized(this) {
@@ -59,7 +82,10 @@ abstract class HabitDatabase : RoomDatabase() {
                     HabitDatabase::class.java,
                     "genzhabit_database"
                 )
-                    .addMigrations(MIGRATION_1_2)
+                    .addMigrations(
+                        MIGRATION_1_2,
+                        MIGRATION_2_3
+                    )
                     .build()
 
                 INSTANCE = instance

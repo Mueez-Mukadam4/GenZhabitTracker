@@ -252,10 +252,6 @@ fun HomeScreen(
             modifier = Modifier.height(12.dp)
         )
 
-        Spacer(
-            modifier = Modifier.height(12.dp)
-        )
-
         Button(
             onClick = {
                 navController.navigate("calendar")
@@ -264,6 +260,21 @@ fun HomeScreen(
         ) {
             Text(
                 text = "📅 Calendar"
+            )
+        }
+
+        Spacer(
+            modifier = Modifier.height(12.dp)
+        )
+
+        Button(
+            onClick = {
+                navController.navigate("todo")
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(
+                text = "📝 To-Do List"
             )
         }
     }

@@ -1,3 +1,4 @@
+
 package com.mueez.genzhabittracker.presentation.navigation
 
 import androidx.compose.runtime.Composable
@@ -21,6 +22,7 @@ import com.mueez.genzhabittracker.presentation.screens.habit.HabitScreen
 import com.mueez.genzhabittracker.presentation.screens.home.HomeScreen
 import com.mueez.genzhabittracker.presentation.screens.onboarding.OnboardingScreen
 import com.mueez.genzhabittracker.presentation.screens.splash.SplashScreen
+import com.mueez.genzhabittracker.presentation.screens.todo.TodoScreen
 import com.mueez.genzhabittracker.viewmodel.HabitViewModel
 import com.mueez.genzhabittracker.viewmodel.HabitViewModelFactory
 
@@ -81,6 +83,7 @@ fun NavGraph() {
             LaunchedEffect(Unit) {
 
                 habitViewModel.getAllHabits { result ->
+
                     habits = result
 
                     result.forEach { habit ->
@@ -99,6 +102,13 @@ fun NavGraph() {
                 navController = navController,
                 habits = habits,
                 completions = completions
+            )
+        }
+
+        composable("todo") {
+
+            TodoScreen(
+                navController = navController
             )
         }
 
@@ -153,3 +163,4 @@ fun NavGraph() {
         }
     }
 }
+
