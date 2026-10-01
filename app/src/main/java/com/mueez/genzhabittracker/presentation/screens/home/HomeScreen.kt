@@ -277,6 +277,17 @@ fun HomeScreen(
                 text = "📝 To-Do List"
             )
         }
+
+        Button(
+            onClick = {
+                navController.navigate("quotes")
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(
+                text = "✨ Motivational Quotes"
+            )
+        }
     }
 }
 

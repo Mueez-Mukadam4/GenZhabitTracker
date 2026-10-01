@@ -21,6 +21,7 @@ import com.mueez.genzhabittracker.presentation.screens.edit.EditHabitScreen
 import com.mueez.genzhabittracker.presentation.screens.habit.HabitScreen
 import com.mueez.genzhabittracker.presentation.screens.home.HomeScreen
 import com.mueez.genzhabittracker.presentation.screens.onboarding.OnboardingScreen
+import com.mueez.genzhabittracker.presentation.screens.quotes.QuotesScreen
 import com.mueez.genzhabittracker.presentation.screens.splash.SplashScreen
 import com.mueez.genzhabittracker.presentation.screens.todo.TodoScreen
 import com.mueez.genzhabittracker.viewmodel.HabitViewModel
@@ -108,6 +109,13 @@ fun NavGraph() {
         composable("todo") {
 
             TodoScreen(
+                navController = navController
+            )
+        }
+
+        composable("quotes") {
+
+            QuotesScreen(
                 navController = navController
             )
         }
