@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "230803484093",
+    "project_id": "genzhabit-tracker",
+    "storage_bucket": "genzhabit-tracker.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:230803484093:android:673b7f151b1862624ef6d4",
+        "android_client_info": {
+          "package_name": "com.mueez.genzhabittracker"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "230803484093-8aclh4alhb2bhpv0c4nm2anrqdkiom4f.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.mueez.genzhabittracker",
+            "certificate_hash": "cb75c92f7d3df65f5376e956cfd70dd702b64788"
+          }
+        },
+        {
+          "client_id": "230803484093-shf28udi51ukht1ra7o5cpo0icf20gvp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDvuWJl8rcOVuwi6hVR79peoWr-fmKgcDU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "230803484093-shf28udi51ukht1ra7o5cpo0icf20gvp.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
