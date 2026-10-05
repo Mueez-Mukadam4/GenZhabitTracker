@@ -1,4 +1,3 @@
-
 package com.mueez.genzhabittracker.presentation.screens.todo
 
 import androidx.compose.foundation.layout.Column
@@ -85,8 +84,11 @@ fun TodoScreen(
 
     LaunchedEffect(Unit) {
 
-        todoViewModel.getAllTodos { result ->
-            todos = result
+        todoViewModel.syncTodosFromFirestore {
+
+            todoViewModel.getAllTodos { result ->
+                todos = result
+            }
         }
     }
 
@@ -139,7 +141,8 @@ fun TodoScreen(
 
         if (todos.isNotEmpty()) {
 
-            val progress = (completedTodos * 100) / todos.size
+            val progress =
+                (completedTodos * 100) / todos.size
 
             Spacer(
                 modifier = Modifier.height(6.dp)
@@ -156,7 +159,8 @@ fun TodoScreen(
 
             LinearProgressIndicator(
                 progress = {
-                    completedTodos.toFloat() / todos.size.toFloat()
+                    completedTodos.toFloat() /
+                            todos.size.toFloat()
                 },
                 modifier = Modifier.fillMaxWidth()
             )
@@ -189,7 +193,6 @@ fun TodoScreen(
                 if (it.length <= 100) {
 
                     todoTitle = it
-
                     duplicateTask = false
                 }
             },
@@ -227,7 +230,8 @@ fun TodoScreen(
         Button(
             onClick = {
 
-                val cleanedTitle = todoTitle.trim()
+                val cleanedTitle =
+                    todoTitle.trim()
 
                 val alreadyExists = todos.any {
                     it.title.equals(
@@ -335,7 +339,9 @@ fun TodoScreen(
                         )
 
                         Spacer(
-                            modifier = Modifier.padding(horizontal = 2.dp)
+                            modifier = Modifier.padding(
+                                horizontal = 2.dp
+                            )
                         )
 
                         Text(
@@ -354,7 +360,9 @@ fun TodoScreen(
                         )
 
                         Spacer(
-                            modifier = Modifier.padding(horizontal = 2.dp)
+                            modifier = Modifier.padding(
+                                horizontal = 2.dp
+                            )
                         )
 
                         Button(
@@ -367,7 +375,9 @@ fun TodoScreen(
                         }
 
                         Spacer(
-                            modifier = Modifier.padding(horizontal = 2.dp)
+                            modifier = Modifier.padding(
+                                horizontal = 2.dp
+                            )
                         )
 
                         Button(
@@ -494,6 +504,7 @@ fun TodoScreen(
                     OutlinedTextField(
                         value = editedTodoTitle,
                         onValueChange = {
+
                             if (it.length <= 100) {
                                 editedTodoTitle = it
                             }
@@ -508,7 +519,9 @@ fun TodoScreen(
                             Text("e.g. Complete Kotlin practice")
                         },
                         supportingText = {
-                            Text("${editedTodoTitle.length}/100")
+                            Text(
+                                "${editedTodoTitle.length}/100"
+                            )
                         },
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -518,15 +531,17 @@ fun TodoScreen(
                     TextButton(
                         onClick = {
 
-                            val cleanedTitle = editedTodoTitle.trim()
+                            val cleanedTitle =
+                                editedTodoTitle.trim()
 
-                            val duplicateEdit = todos.any {
-                                it.id != todoToEdit?.id &&
-                                        it.title.equals(
-                                            cleanedTitle,
-                                            ignoreCase = true
-                                        )
-                            }
+                            val duplicateEdit =
+                                todos.any {
+                                    it.id != todoToEdit?.id &&
+                                            it.title.equals(
+                                                cleanedTitle,
+                                                ignoreCase = true
+                                            )
+                                }
 
                             if (
                                 cleanedTitle.isNotEmpty() &&
@@ -568,4 +583,3 @@ fun TodoScreen(
         }
     }
 }
-

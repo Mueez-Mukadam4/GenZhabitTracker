@@ -7,12 +7,16 @@ class TodoRepository(
     private val todoDao: TodoDao
 ) {
 
-    suspend fun insertTodo(todo: Todo) {
-        todoDao.insertTodo(todo)
+    suspend fun insertTodo(todo: Todo): Long {
+        return todoDao.insertTodo(todo)
     }
 
     suspend fun getAllTodos(): List<Todo> {
         return todoDao.getAllTodos()
+    }
+
+    suspend fun getTodoById(todoId: Int): Todo? {
+        return todoDao.getTodoById(todoId)
     }
 
     suspend fun updateTodo(todo: Todo) {
@@ -26,6 +30,4 @@ class TodoRepository(
     suspend fun deleteCompletedTodos() {
         todoDao.deleteCompletedTodos()
     }
-
-
 }

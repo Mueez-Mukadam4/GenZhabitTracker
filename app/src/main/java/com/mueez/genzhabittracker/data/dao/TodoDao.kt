@@ -1,4 +1,3 @@
-
 package com.mueez.genzhabittracker.data.dao
 
 import androidx.room.Dao
@@ -12,10 +11,13 @@ import com.mueez.genzhabittracker.data.model.Todo
 interface TodoDao {
 
     @Insert
-    suspend fun insertTodo(todo: Todo)
+    suspend fun insertTodo(todo: Todo): Long
 
     @Query("SELECT * FROM todos")
     suspend fun getAllTodos(): List<Todo>
+
+    @Query("SELECT * FROM todos WHERE id = :todoId LIMIT 1")
+    suspend fun getTodoById(todoId: Int): Todo?
 
     @Update
     suspend fun updateTodo(todo: Todo)
@@ -26,4 +28,3 @@ interface TodoDao {
     @Query("DELETE FROM todos WHERE isCompleted = 1")
     suspend fun deleteCompletedTodos()
 }
-

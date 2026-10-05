@@ -52,10 +52,14 @@ class AuthViewModel(
             )
 
             result.onSuccess { user ->
+
                 _currentUser.value = user
+
                 _successMessage.value =
                     "Account created successfully."
+
             }.onFailure { exception ->
+
                 _errorMessage.value =
                     exception.message ?: "Registration failed."
             }
@@ -80,10 +84,14 @@ class AuthViewModel(
             )
 
             result.onSuccess { user ->
+
                 _currentUser.value = user
+
                 _successMessage.value =
                     "Login successful."
+
             }.onFailure { exception ->
+
                 _errorMessage.value =
                     exception.message ?: "Login failed."
             }
@@ -107,16 +115,29 @@ class AuthViewModel(
                 )
 
             result.onSuccess { user ->
+
                 _currentUser.value = user
+
                 _successMessage.value =
                     "Google Sign-In successful."
+
             }.onFailure { exception ->
+
                 _errorMessage.value =
-                    exception.message ?: "Google Sign-In failed."
+                    exception.message
+                        ?: "Google Sign-In failed."
             }
 
             _isLoading.value = false
         }
+    }
+
+    fun setErrorMessage(
+        message: String
+    ) {
+        _errorMessage.value = message
+        _successMessage.value = null
+        _isLoading.value = false
     }
 
     fun logout() {
@@ -124,13 +145,17 @@ class AuthViewModel(
         authRepository.logout()
 
         _currentUser.value = null
+
         _errorMessage.value = null
+
         _successMessage.value =
             "Logged out successfully."
     }
 
     fun clearMessages() {
+
         _errorMessage.value = null
+
         _successMessage.value = null
     }
 }

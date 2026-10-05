@@ -1,4 +1,3 @@
-
 package com.mueez.genzhabittracker.data.repository
 
 import com.mueez.genzhabittracker.data.dao.HabitDao
@@ -31,14 +30,20 @@ class HabitRepository(
         habitDao.deleteHabit(habit)
     }
 
-    suspend fun saveCompletion(completion: HabitCompletion) {
-        habitCompletionDao.insertCompletion(completion)
+    suspend fun saveCompletion(
+        completion: HabitCompletion
+    ) {
+        habitCompletionDao.insertCompletion(
+            completion
+        )
     }
 
     suspend fun getCompletionsForHabit(
         habitId: Int
     ): List<HabitCompletion> {
-        return habitCompletionDao.getCompletionsForHabit(habitId)
+        return habitCompletionDao.getCompletionsForHabit(
+            habitId
+        )
     }
 
     suspend fun getCompletionCountForDate(
@@ -51,4 +56,3 @@ class HabitRepository(
         )
     }
 }
-

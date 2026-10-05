@@ -1,4 +1,3 @@
-
 package com.mueez.genzhabittracker.presentation.screens.home
 
 import androidx.compose.foundation.layout.Arrangement
@@ -33,7 +32,8 @@ import com.mueez.genzhabittracker.viewmodel.HabitViewModelFactory
 
 @Composable
 fun HomeScreen(
-    navController: NavController
+    navController: NavController,
+    onLogoutClick: () -> Unit
 ) {
 
     val habitDao = DatabaseProvider.database.habitDao()
@@ -59,8 +59,12 @@ fun HomeScreen(
     }
 
     LaunchedEffect(Unit) {
-        habitViewModel.getAllHabits { result ->
-            habits = result
+
+        habitViewModel.syncHabitsFromFirestore {
+
+            habitViewModel.getAllHabits { result ->
+                habits = result
+            }
         }
     }
 
@@ -184,7 +188,9 @@ fun HomeScreen(
                                 ).format(java.util.Date())
                             )
 
-                            habitViewModel.saveCompletionIfNeeded(completion)
+                            habitViewModel.saveCompletionIfNeeded(
+                                completion
+                            )
                         }
 
                         habitViewModel.getAllHabits { updatedHabits ->
@@ -194,7 +200,9 @@ fun HomeScreen(
 
                     onDelete = { habitToDelete ->
 
-                        habitViewModel.deleteHabit(habitToDelete)
+                        habitViewModel.deleteHabit(
+                            habitToDelete
+                        )
 
                         habitViewModel.getAllHabits { updatedHabits ->
                             habits = updatedHabits
@@ -278,6 +286,10 @@ fun HomeScreen(
             )
         }
 
+        Spacer(
+            modifier = Modifier.height(12.dp)
+        )
+
         Button(
             onClick = {
                 navController.navigate("quotes")
@@ -288,6 +300,18 @@ fun HomeScreen(
                 text = "✨ Motivational Quotes"
             )
         }
+
+        Spacer(
+            modifier = Modifier.height(24.dp)
+        )
+
+        Button(
+            onClick = onLogoutClick,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(
+                text = "Logout"
+            )
+        }
     }
 }
-
