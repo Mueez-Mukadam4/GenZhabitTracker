@@ -1,4 +1,3 @@
-
 package com.mueez.genzhabittracker.presentation.screens.quotes
 
 import androidx.compose.foundation.layout.Arrangement
@@ -8,6 +7,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-
+import com.mueez.genzhabittracker.data.model.Quote
 import com.mueez.genzhabittracker.data.repository.QuoteRepository
 import com.mueez.genzhabittracker.viewmodel.QuoteViewModel
 import com.mueez.genzhabittracker.viewmodel.QuoteViewModelFactory
@@ -36,10 +36,21 @@ fun QuotesScreen(
         factory = factory
     )
 
-    val quotes = quoteViewModel.getQuotes()
+    var quotes by remember {
+        mutableStateOf(
+            quoteViewModel.getQuotes()
+        )
+    }
 
     var currentQuoteIndex by remember {
         mutableStateOf(0)
+    }
+
+    LaunchedEffect(Unit) {
+        quoteViewModel.syncQuotesFromFirestore { cloudQuotes ->
+            quotes = cloudQuotes
+            currentQuoteIndex = 0
+        }
     }
 
     if (quotes.isEmpty()) {
@@ -70,7 +81,8 @@ fun QuotesScreen(
         return
     }
 
-    val currentQuote = quotes[currentQuoteIndex]
+    val currentQuote: Quote =
+        quotes[currentQuoteIndex]
 
     Column(
         modifier = Modifier
@@ -101,10 +113,8 @@ fun QuotesScreen(
 
         Button(
             onClick = {
-
                 currentQuoteIndex =
                     (currentQuoteIndex + 1) % quotes.size
-
             },
             modifier = Modifier.padding(top = 24.dp)
         ) {
@@ -121,4 +131,3 @@ fun QuotesScreen(
         }
     }
 }
-
