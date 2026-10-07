@@ -26,6 +26,7 @@ import com.mueez.genzhabittracker.data.model.Habit
 import com.mueez.genzhabittracker.data.model.HabitCompletion
 import com.mueez.genzhabittracker.data.repository.HabitRepository
 import com.mueez.genzhabittracker.presentation.components.HabitCard
+import com.mueez.genzhabittracker.utils.RecoveryMode
 import com.mueez.genzhabittracker.viewmodel.HabitViewModel
 import com.mueez.genzhabittracker.viewmodel.HabitViewModelFactory
 
@@ -34,7 +35,6 @@ fun HomeScreen(
     navController: NavController,
     onLogoutClick: () -> Unit
 ) {
-
     val habitDao =
         DatabaseProvider.database.habitDao()
 
@@ -66,15 +66,11 @@ fun HomeScreen(
     }
 
     LaunchedEffect(Unit) {
-
         habitViewModel.syncHabitsFromFirestore {
-
             habitViewModel.getAllHabits { result ->
-
                 habits = result
 
                 result.forEach { habit ->
-
                     habitViewModel.getCurrentStreak(
                         habit.id
                     ) { streak ->
@@ -88,6 +84,32 @@ fun HomeScreen(
         }
     }
 
+    val completedHabits =
+        habits.count {
+            it.isCompleted
+        }
+
+    val progress =
+        if (habits.isNotEmpty()) {
+            (completedHabits * 100) / habits.size
+        } else {
+            0
+        }
+
+    val completedToday =
+        habits.any {
+            it.isCompleted
+        }
+
+    val highestStreak =
+        habitStreaks.values.maxOrNull() ?: 0
+
+    val shouldOfferRecovery =
+        RecoveryMode.shouldOfferRecovery(
+            currentStreak = highestStreak,
+            completedToday = completedToday
+        )
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -95,7 +117,6 @@ fun HomeScreen(
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.Start
     ) {
-
         Text(
             text = "Good morning 👋",
             fontSize = 28.sp
@@ -128,18 +149,6 @@ fun HomeScreen(
             modifier = Modifier.height(12.dp)
         )
 
-        val completedHabits =
-            habits.count {
-                it.isCompleted
-            }
-
-        val progress =
-            if (habits.isNotEmpty()) {
-                (completedHabits * 100) / habits.size
-            } else {
-                0
-            }
-
         Text(
             text = "$progress% Complete",
             fontSize = 18.sp
@@ -159,6 +168,17 @@ fun HomeScreen(
             },
             fontSize = 14.sp
         )
+
+        if (shouldOfferRecovery) {
+            Spacer(
+                modifier = Modifier.height(16.dp)
+            )
+
+            Text(
+                text = "🌱 Recovery Mode: Start again today. Missing a day doesn't mean you failed.",
+                fontSize = 14.sp
+            )
+        }
 
         Spacer(
             modifier = Modifier.height(32.dp)
