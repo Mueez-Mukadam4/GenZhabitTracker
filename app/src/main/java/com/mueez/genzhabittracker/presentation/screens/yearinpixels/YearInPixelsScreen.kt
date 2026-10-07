@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,6 +15,10 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -27,6 +32,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.mueez.genzhabittracker.data.database.DatabaseProvider
 import com.mueez.genzhabittracker.data.model.HabitCompletion
 import com.mueez.genzhabittracker.data.repository.HabitRepository
@@ -35,7 +41,9 @@ import com.mueez.genzhabittracker.viewmodel.HabitViewModel
 import com.mueez.genzhabittracker.viewmodel.HabitViewModelFactory
 
 @Composable
-fun YearInPixelsScreen() {
+fun YearInPixelsScreen(
+    navController: NavController
+) {
 
     val habitDao =
         DatabaseProvider.database.habitDao()
@@ -113,10 +121,27 @@ fun YearInPixelsScreen() {
             .padding(16.dp)
     ) {
 
-        Text(
-            text = "Year in Pixels",
-            fontSize = 24.sp
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+
+            IconButton(
+                onClick = {
+                    navController.popBackStack()
+                }
+            ) {
+                Icon(
+                    imageVector = Icons.Default.ArrowBack,
+                    contentDescription = "Back"
+                )
+            }
+
+            Text(
+                text = "Year in Pixels",
+                fontSize = 24.sp
+            )
+        }
 
         Spacer(
             modifier = Modifier.height(8.dp)

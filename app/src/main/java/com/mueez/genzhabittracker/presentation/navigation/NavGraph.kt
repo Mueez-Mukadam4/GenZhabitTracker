@@ -245,8 +245,9 @@ fun NavGraph() {
         }
 
         composable("yearinpixels") {
-
-            YearInPixelsScreen()
+            YearInPixelsScreen(
+                navController = navController
+            )
         }
 
         composable("todo") {
