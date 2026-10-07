@@ -155,6 +155,15 @@ fun YearInPixelsScreen() {
         )
 
         Spacer(
+            modifier = Modifier.height(8.dp)
+        )
+
+        Text(
+            text = "🟩 Completed   🟦 Today   ⬜ Missed   ⬜ Future",
+            fontSize = 12.sp
+        )
+
+        Spacer(
             modifier = Modifier.height(16.dp)
         )
 
