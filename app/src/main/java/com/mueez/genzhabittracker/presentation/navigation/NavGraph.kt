@@ -13,7 +13,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.google.firebase.auth.FirebaseAuth
 import com.mueez.genzhabittracker.data.database.DatabaseProvider
 import com.mueez.genzhabittracker.data.model.Habit
 import com.mueez.genzhabittracker.data.model.HabitCompletion
@@ -30,6 +29,7 @@ import com.mueez.genzhabittracker.presentation.screens.onboarding.OnboardingScre
 import com.mueez.genzhabittracker.presentation.screens.quotes.QuotesScreen
 import com.mueez.genzhabittracker.presentation.screens.splash.SplashScreen
 import com.mueez.genzhabittracker.presentation.screens.todo.TodoScreen
+import com.mueez.genzhabittracker.presentation.screens.yearinpixels.YearInPixelsScreen
 import com.mueez.genzhabittracker.viewmodel.AuthViewModel
 import com.mueez.genzhabittracker.viewmodel.AuthViewModelFactory
 import com.mueez.genzhabittracker.viewmodel.HabitViewModel
@@ -242,6 +242,11 @@ fun NavGraph() {
                 habits = habits,
                 completions = completions
             )
+        }
+
+        composable("yearinpixels") {
+
+            YearInPixelsScreen()
         }
 
         composable("todo") {

@@ -437,6 +437,21 @@ fun HomeScreen(
         }
 
         Spacer(
+            modifier = Modifier.height(12.dp)
+        )
+
+        Button(
+            onClick = {
+                navController.navigate("yearinpixels")
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(
+                text = "📊 Year in Pixels"
+            )
+        }
+
+        Spacer(
             modifier = Modifier.height(24.dp)
         )
 
