@@ -1,17 +1,21 @@
 package com.mueez.genzhabittracker.utils
 
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
+
 object YearPixelCalculator {
 
     fun getDayOfYear(): Int {
-        return java.util.Calendar.getInstance()
-            .get(java.util.Calendar.DAY_OF_YEAR)
+        return Calendar.getInstance()
+            .get(Calendar.DAY_OF_YEAR)
     }
 
     fun getTotalDaysInYear(): Int {
-        val calendar = java.util.Calendar.getInstance()
+        val calendar = Calendar.getInstance()
 
         return calendar.getActualMaximum(
-            java.util.Calendar.DAY_OF_YEAR
+            Calendar.DAY_OF_YEAR
         )
     }
 
@@ -21,5 +25,28 @@ object YearPixelCalculator {
         return completedDates
             .distinct()
             .size
+    }
+
+    fun getDateForDayOfYear(
+        dayOfYear: Int
+    ): String {
+
+        val calendar =
+            Calendar.getInstance().apply {
+                set(
+                    Calendar.DAY_OF_YEAR,
+                    dayOfYear
+                )
+            }
+
+        val dateFormat =
+            SimpleDateFormat(
+                "yyyy-MM-dd",
+                Locale.getDefault()
+            )
+
+        return dateFormat.format(
+            calendar.time
+        )
     }
 }
