@@ -98,6 +98,12 @@ fun YearInPixelsScreen() {
             completedDates
         )
 
+    val completionPercentage =
+        YearPixelCalculator.getCompletionPercentage(
+            completedDayCount,
+            totalDays
+        )
+
     val days =
         (1..totalDays).toList()
 
@@ -127,6 +133,15 @@ fun YearInPixelsScreen() {
 
         Text(
             text = "Completed days: $completedDayCount",
+            fontSize = 14.sp
+        )
+
+        Spacer(
+            modifier = Modifier.height(4.dp)
+        )
+
+        Text(
+            text = "Year completion: $completionPercentage%",
             fontSize = 14.sp
         )
 

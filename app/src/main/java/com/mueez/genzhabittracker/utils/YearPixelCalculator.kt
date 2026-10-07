@@ -27,6 +27,17 @@ object YearPixelCalculator {
             .size
     }
 
+    fun getCompletionPercentage(
+        completedDayCount: Int,
+        totalDays: Int
+    ): Int {
+        if (totalDays == 0) {
+            return 0
+        }
+
+        return (completedDayCount * 100) / totalDays
+    }
+
     fun getDateForDayOfYear(
         dayOfYear: Int
     ): String {
