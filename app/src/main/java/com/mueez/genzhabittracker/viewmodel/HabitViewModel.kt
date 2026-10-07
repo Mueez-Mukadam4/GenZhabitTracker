@@ -7,6 +7,7 @@ import com.mueez.genzhabittracker.data.model.HabitCompletion
 import com.mueez.genzhabittracker.data.repository.FirestoreHabitCompletionRepository
 import com.mueez.genzhabittracker.data.repository.FirestoreHabitRepository
 import com.mueez.genzhabittracker.data.repository.HabitRepository
+import com.mueez.genzhabittracker.utils.StreakCalculator
 import kotlinx.coroutines.launch
 
 class HabitViewModel(
@@ -62,13 +63,21 @@ class HabitViewModel(
     }
 
     fun saveCompletionIfNeeded(
-        completion: HabitCompletion
+        completion: HabitCompletion,
+        onComplete: () -> Unit = {}
     ) {
         viewModelScope.launch {
-            habitRepository.saveCompletion(completion)
+
+            habitRepository.saveCompletion(
+                completion
+            )
 
             firestoreHabitCompletionRepository
-                .uploadCompletion(completion)
+                .uploadCompletion(
+                    completion
+                )
+
+            onComplete()
         }
     }
 
@@ -77,10 +86,33 @@ class HabitViewModel(
         onResult: (List<HabitCompletion>) -> Unit
     ) {
         viewModelScope.launch {
+
             val completions =
-                habitRepository.getCompletionsForHabit(habitId)
+                habitRepository.getCompletionsForHabit(
+                    habitId
+                )
 
             onResult(completions)
+        }
+    }
+
+    fun getCurrentStreak(
+        habitId: Int,
+        onResult: (Int) -> Unit
+    ) {
+        viewModelScope.launch {
+
+            val completions =
+                habitRepository.getCompletionsForHabit(
+                    habitId
+                )
+
+            val streak =
+                StreakCalculator.calculateCurrentStreak(
+                    completions
+                )
+
+            onResult(streak)
         }
     }
 
@@ -100,7 +132,6 @@ class HabitViewModel(
                 val cloudHabitIds =
                     cloudHabits.map { it.id }.toSet()
 
-                // Add or update cloud habits locally.
                 cloudHabits.forEach { cloudHabit ->
 
                     val localHabit =
@@ -119,8 +150,6 @@ class HabitViewModel(
                     }
                 }
 
-                // Delete local habits that no longer
-                // exist in Firestore.
                 localHabits.forEach { localHabit ->
 
                     if (localHabit.id !in cloudHabitIds) {

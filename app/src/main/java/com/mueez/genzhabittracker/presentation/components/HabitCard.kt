@@ -1,4 +1,3 @@
-
 package com.mueez.genzhabittracker.presentation.components
 
 import androidx.compose.foundation.background
@@ -27,6 +26,7 @@ import com.mueez.genzhabittracker.data.model.Habit
 @Composable
 fun HabitCard(
     habit: Habit,
+    streak: Int,
     onCompletionChanged: (Habit) -> Unit,
     onDelete: (Habit) -> Unit,
     onEdit: (Habit) -> Unit
@@ -70,6 +70,13 @@ fun HabitCard(
                 text = habit.frequency,
                 fontSize = 14.sp,
                 color = Color.DarkGray
+            )
+
+            Text(
+                text = "🔥 $streak day streak",
+                fontSize = 14.sp,
+                color = Color.DarkGray,
+                modifier = Modifier.padding(top = 4.dp)
             )
         }
 
@@ -154,4 +161,3 @@ fun HabitCard(
         )
     }
 }
-

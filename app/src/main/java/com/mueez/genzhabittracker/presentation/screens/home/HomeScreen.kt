@@ -11,9 +11,9 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,13 +21,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-
 import com.mueez.genzhabittracker.data.database.DatabaseProvider
 import com.mueez.genzhabittracker.data.model.Habit
 import com.mueez.genzhabittracker.data.model.HabitCompletion
 import com.mueez.genzhabittracker.data.repository.HabitRepository
-import com.mueez.genzhabittracker.viewmodel.HabitViewModel
 import com.mueez.genzhabittracker.presentation.components.HabitCard
+import com.mueez.genzhabittracker.viewmodel.HabitViewModel
 import com.mueez.genzhabittracker.viewmodel.HabitViewModelFactory
 
 @Composable
@@ -36,26 +35,34 @@ fun HomeScreen(
     onLogoutClick: () -> Unit
 ) {
 
-    val habitDao = DatabaseProvider.database.habitDao()
+    val habitDao =
+        DatabaseProvider.database.habitDao()
 
     val habitCompletionDao =
         DatabaseProvider.database.habitCompletionDao()
 
-    val habitRepository = HabitRepository(
-        habitDao,
-        habitCompletionDao
-    )
+    val habitRepository =
+        HabitRepository(
+            habitDao,
+            habitCompletionDao
+        )
 
-    val factory = HabitViewModelFactory(
-        habitRepository
-    )
+    val factory =
+        HabitViewModelFactory(
+            habitRepository
+        )
 
-    val habitViewModel: HabitViewModel = viewModel(
-        factory = factory
-    )
+    val habitViewModel: HabitViewModel =
+        viewModel(
+            factory = factory
+        )
 
     var habits by remember {
         mutableStateOf<List<Habit>>(emptyList())
+    }
+
+    var habitStreaks by remember {
+        mutableStateOf<Map<Int, Int>>(emptyMap())
     }
 
     LaunchedEffect(Unit) {
@@ -63,7 +70,20 @@ fun HomeScreen(
         habitViewModel.syncHabitsFromFirestore {
 
             habitViewModel.getAllHabits { result ->
+
                 habits = result
+
+                result.forEach { habit ->
+
+                    habitViewModel.getCurrentStreak(
+                        habit.id
+                    ) { streak ->
+
+                        habitStreaks =
+                            habitStreaks +
+                                    (habit.id to streak)
+                    }
+                }
             }
         }
     }
@@ -108,15 +128,17 @@ fun HomeScreen(
             modifier = Modifier.height(12.dp)
         )
 
-        val completedHabits = habits.count {
-            it.isCompleted
-        }
+        val completedHabits =
+            habits.count {
+                it.isCompleted
+            }
 
-        val progress = if (habits.isNotEmpty()) {
-            (completedHabits * 100) / habits.size
-        } else {
-            0
-        }
+        val progress =
+            if (habits.isNotEmpty()) {
+                (completedHabits * 100) / habits.size
+            } else {
+                0
+            }
 
         Text(
             text = "$progress% Complete",
@@ -173,27 +195,63 @@ fun HomeScreen(
 
                 HabitCard(
                     habit = habit,
+                    streak = habitStreaks[habit.id] ?: 0,
 
                     onCompletionChanged = { updatedHabit ->
 
-                        habitViewModel.updateHabit(updatedHabit)
+                        habitViewModel.updateHabit(
+                            updatedHabit
+                        )
 
                         if (updatedHabit.isCompleted) {
 
-                            val completion = HabitCompletion(
-                                habitId = updatedHabit.id,
-                                completedDate = java.text.SimpleDateFormat(
-                                    "yyyy-MM-dd",
-                                    java.util.Locale.getDefault()
-                                ).format(java.util.Date())
-                            )
+                            val completion =
+                                HabitCompletion(
+                                    habitId =
+                                        updatedHabit.id,
+
+                                    completedDate =
+                                        java.text.SimpleDateFormat(
+                                            "yyyy-MM-dd",
+                                            java.util.Locale.getDefault()
+                                        ).format(
+                                            java.util.Date()
+                                        )
+                                )
 
                             habitViewModel.saveCompletionIfNeeded(
                                 completion
-                            )
+                            ) {
+
+                                habitViewModel.getCurrentStreak(
+                                    updatedHabit.id
+                                ) { streak ->
+
+                                    habitStreaks =
+                                        habitStreaks +
+                                                (
+                                                        updatedHabit.id to streak
+                                                        )
+                                }
+                            }
+
+                        } else {
+
+                            habitViewModel.getCurrentStreak(
+                                updatedHabit.id
+                            ) { streak ->
+
+                                habitStreaks =
+                                    habitStreaks +
+                                            (
+                                                    updatedHabit.id to streak
+                                                    )
+                            }
                         }
 
-                        habitViewModel.getAllHabits { updatedHabits ->
+                        habitViewModel.getAllHabits {
+                                updatedHabits ->
+
                             habits = updatedHabits
                         }
                     },
@@ -204,8 +262,14 @@ fun HomeScreen(
                             habitToDelete
                         )
 
-                        habitViewModel.getAllHabits { updatedHabits ->
+                        habitViewModel.getAllHabits {
+                                updatedHabits ->
+
                             habits = updatedHabits
+
+                            habitStreaks =
+                                habitStreaks -
+                                        habitToDelete.id
                         }
                     },
 
