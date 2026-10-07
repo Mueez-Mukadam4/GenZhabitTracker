@@ -29,6 +29,7 @@ import com.mueez.genzhabittracker.presentation.components.HabitCard
 import com.mueez.genzhabittracker.utils.MomentumCalculator
 import com.mueez.genzhabittracker.utils.RecoveryMode
 import com.mueez.genzhabittracker.utils.StreakShield
+import com.mueez.genzhabittracker.utils.YearPixelCalculator
 import com.mueez.genzhabittracker.viewmodel.HabitViewModel
 import com.mueez.genzhabittracker.viewmodel.HabitViewModelFactory
 
@@ -125,6 +126,12 @@ fun HomeScreen(
             completedToday = completedToday
         )
 
+    val currentYearDay =
+        YearPixelCalculator.getDayOfYear()
+
+    val totalDaysInYear =
+        YearPixelCalculator.getTotalDaysInYear()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -212,6 +219,15 @@ fun HomeScreen(
 
         Text(
             text = "🔥 Momentum: $momentum",
+            fontSize = 14.sp
+        )
+
+        Spacer(
+            modifier = Modifier.height(8.dp)
+        )
+
+        Text(
+            text = "📅 Year in Pixels: Day $currentYearDay / $totalDaysInYear",
             fontSize = 14.sp
         )
 
