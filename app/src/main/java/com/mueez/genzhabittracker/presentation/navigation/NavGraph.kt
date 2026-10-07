@@ -1,3 +1,4 @@
+
 package com.mueez.genzhabittracker.presentation.navigation
 
 import androidx.compose.runtime.Composable
@@ -27,6 +28,7 @@ import com.mueez.genzhabittracker.presentation.screens.habit.HabitScreen
 import com.mueez.genzhabittracker.presentation.screens.home.HomeScreen
 import com.mueez.genzhabittracker.presentation.screens.onboarding.OnboardingScreen
 import com.mueez.genzhabittracker.presentation.screens.quotes.QuotesScreen
+import com.mueez.genzhabittracker.presentation.screens.settings.SettingsScreen
 import com.mueez.genzhabittracker.presentation.screens.splash.SplashScreen
 import com.mueez.genzhabittracker.presentation.screens.todo.TodoScreen
 import com.mueez.genzhabittracker.presentation.screens.yearinpixels.YearInPixelsScreen
@@ -245,6 +247,7 @@ fun NavGraph() {
         }
 
         composable("yearinpixels") {
+
             YearInPixelsScreen(
                 navController = navController
             )
@@ -260,6 +263,13 @@ fun NavGraph() {
         composable("quotes") {
 
             QuotesScreen(
+                navController = navController
+            )
+        }
+
+        composable("settings") {
+
+            SettingsScreen(
                 navController = navController
             )
         }
@@ -315,3 +325,4 @@ fun NavGraph() {
         }
     }
 }
+

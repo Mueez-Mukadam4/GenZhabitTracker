@@ -13,6 +13,7 @@ import com.mueez.genzhabittracker.data.database.DatabaseProvider
 import com.mueez.genzhabittracker.presentation.navigation.NavGraph
 import com.mueez.genzhabittracker.ui.theme.GenZhabitTrackerTheme
 import com.mueez.genzhabittracker.utils.NotificationHelper
+import com.mueez.genzhabittracker.utils.NotificationScheduler
 
 class MainActivity : ComponentActivity() {
 
@@ -26,6 +27,10 @@ class MainActivity : ComponentActivity() {
         )
 
         requestNotificationPermission()
+
+        NotificationScheduler.scheduleDailyReminder(
+            applicationContext
+        )
 
         enableEdgeToEdge()
 

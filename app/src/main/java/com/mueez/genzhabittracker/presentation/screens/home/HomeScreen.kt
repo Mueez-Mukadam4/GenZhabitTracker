@@ -1,3 +1,4 @@
+
 package com.mueez.genzhabittracker.presentation.screens.home
 
 import androidx.compose.foundation.layout.Arrangement
@@ -452,6 +453,21 @@ fun HomeScreen(
         }
 
         Spacer(
+            modifier = Modifier.height(12.dp)
+        )
+
+        Button(
+            onClick = {
+                navController.navigate("settings")
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(
+                text = "⚙️ Settings"
+            )
+        }
+
+        Spacer(
             modifier = Modifier.height(24.dp)
         )
 
@@ -465,3 +481,4 @@ fun HomeScreen(
         }
     }
 }
+
