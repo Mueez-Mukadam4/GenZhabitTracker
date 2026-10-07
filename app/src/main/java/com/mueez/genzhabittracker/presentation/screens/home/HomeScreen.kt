@@ -27,6 +27,7 @@ import com.mueez.genzhabittracker.data.model.HabitCompletion
 import com.mueez.genzhabittracker.data.repository.HabitRepository
 import com.mueez.genzhabittracker.presentation.components.HabitCard
 import com.mueez.genzhabittracker.utils.RecoveryMode
+import com.mueez.genzhabittracker.utils.StreakShield
 import com.mueez.genzhabittracker.viewmodel.HabitViewModel
 import com.mueez.genzhabittracker.viewmodel.HabitViewModelFactory
 
@@ -104,6 +105,14 @@ fun HomeScreen(
     val highestStreak =
         habitStreaks.values.maxOrNull() ?: 0
 
+    val streakShieldAvailable = true
+
+    val canUseStreakShield =
+        StreakShield.canUseShield(
+            streak = highestStreak,
+            shieldAvailable = streakShieldAvailable
+        )
+
     val shouldOfferRecovery =
         RecoveryMode.shouldOfferRecovery(
             currentStreak = highestStreak,
@@ -176,6 +185,17 @@ fun HomeScreen(
 
             Text(
                 text = "🌱 Recovery Mode: Start again today. Missing a day doesn't mean you failed.",
+                fontSize = 14.sp
+            )
+        }
+
+        if (canUseStreakShield) {
+            Spacer(
+                modifier = Modifier.height(8.dp)
+            )
+
+            Text(
+                text = "🛡️ Streak Shield available",
                 fontSize = 14.sp
             )
         }
