@@ -26,6 +26,7 @@ import com.mueez.genzhabittracker.data.model.Habit
 import com.mueez.genzhabittracker.data.model.HabitCompletion
 import com.mueez.genzhabittracker.data.repository.HabitRepository
 import com.mueez.genzhabittracker.presentation.components.HabitCard
+import com.mueez.genzhabittracker.utils.MomentumCalculator
 import com.mueez.genzhabittracker.utils.RecoveryMode
 import com.mueez.genzhabittracker.utils.StreakShield
 import com.mueez.genzhabittracker.viewmodel.HabitViewModel
@@ -104,6 +105,11 @@ fun HomeScreen(
 
     val highestStreak =
         habitStreaks.values.maxOrNull() ?: 0
+
+    val momentum =
+        MomentumCalculator.calculateMomentum(
+            currentStreak = highestStreak
+        )
 
     val streakShieldAvailable = true
 
@@ -199,6 +205,15 @@ fun HomeScreen(
                 fontSize = 14.sp
             )
         }
+
+        Spacer(
+            modifier = Modifier.height(8.dp)
+        )
+
+        Text(
+            text = "🔥 Momentum: $momentum",
+            fontSize = 14.sp
+        )
 
         Spacer(
             modifier = Modifier.height(32.dp)
