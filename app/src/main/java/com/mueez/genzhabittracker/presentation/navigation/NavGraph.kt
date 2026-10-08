@@ -1,4 +1,3 @@
-
 package com.mueez.genzhabittracker.presentation.navigation
 
 import androidx.compose.runtime.Composable
@@ -28,6 +27,7 @@ import com.mueez.genzhabittracker.presentation.screens.habit.HabitScreen
 import com.mueez.genzhabittracker.presentation.screens.home.HomeScreen
 import com.mueez.genzhabittracker.presentation.screens.onboarding.OnboardingScreen
 import com.mueez.genzhabittracker.presentation.screens.quotes.QuotesScreen
+import com.mueez.genzhabittracker.presentation.screens.settings.PrivacyScreen
 import com.mueez.genzhabittracker.presentation.screens.settings.SettingsScreen
 import com.mueez.genzhabittracker.presentation.screens.splash.SplashScreen
 import com.mueez.genzhabittracker.presentation.screens.todo.TodoScreen
@@ -274,6 +274,13 @@ fun NavGraph() {
             )
         }
 
+        composable("privacy") {
+
+            PrivacyScreen(
+                navController = navController
+            )
+        }
+
         composable("edit/{habitId}") { backStackEntry ->
 
             val habitId = backStackEntry
@@ -325,4 +332,3 @@ fun NavGraph() {
         }
     }
 }
-

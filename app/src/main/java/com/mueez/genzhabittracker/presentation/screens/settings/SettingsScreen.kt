@@ -1,6 +1,6 @@
 package com.mueez.genzhabittracker.presentation.screens.settings
 
-import android.content.Context
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,9 +17,11 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,7 +29,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.mueez.genzhabittracker.utils.NotificationPreferences
 import com.mueez.genzhabittracker.utils.NotificationScheduler
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 @Composable
 fun SettingsScreen(
@@ -36,8 +41,18 @@ fun SettingsScreen(
 
     val context = LocalContext.current
 
+    val coroutineScope = rememberCoroutineScope()
+
     var notificationsEnabled by remember {
         mutableStateOf(true)
+    }
+
+    LaunchedEffect(Unit) {
+
+        notificationsEnabled =
+            NotificationPreferences
+                .notificationsEnabled(context)
+                .first()
     }
 
     Column(
@@ -120,6 +135,15 @@ fun SettingsScreen(
                             context
                         )
                     }
+
+                    coroutineScope.launch {
+
+                        NotificationPreferences
+                            .setNotificationsEnabled(
+                                context,
+                                enabled
+                            )
+                    }
                 }
             )
         }
@@ -134,19 +158,29 @@ fun SettingsScreen(
             modifier = Modifier.height(16.dp)
         )
 
-        Text(
-            text = "Privacy",
-            fontSize = 18.sp
-        )
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable {
+                    navController.navigate("privacy")
+                }
+                .padding(vertical = 4.dp)
+        ) {
 
-        Spacer(
-            modifier = Modifier.height(8.dp)
-        )
+            Text(
+                text = "Privacy",
+                fontSize = 18.sp
+            )
 
-        Text(
-            text = "Your habits and progress are stored locally and synced securely when cloud sync is available.",
-            fontSize = 14.sp
-        )
+            Spacer(
+                modifier = Modifier.height(8.dp)
+            )
+
+            Text(
+                text = "Your habits and progress are stored locally and synced securely when cloud sync is available.",
+                fontSize = 14.sp
+            )
+        }
 
         Spacer(
             modifier = Modifier.height(20.dp)

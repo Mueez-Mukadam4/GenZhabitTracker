@@ -9,11 +9,15 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import com.mueez.genzhabittracker.data.database.DatabaseProvider
 import com.mueez.genzhabittracker.presentation.navigation.NavGraph
 import com.mueez.genzhabittracker.ui.theme.GenZhabitTrackerTheme
 import com.mueez.genzhabittracker.utils.NotificationHelper
+import com.mueez.genzhabittracker.utils.NotificationPreferences
 import com.mueez.genzhabittracker.utils.NotificationScheduler
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
 
@@ -28,9 +32,26 @@ class MainActivity : ComponentActivity() {
 
         requestNotificationPermission()
 
-        NotificationScheduler.scheduleDailyReminder(
-            applicationContext
-        )
+        lifecycleScope.launch {
+
+            val notificationsEnabled =
+                NotificationPreferences
+                    .notificationsEnabled(applicationContext)
+                    .first()
+
+            if (notificationsEnabled) {
+
+                NotificationScheduler.scheduleDailyReminder(
+                    applicationContext
+                )
+
+            } else {
+
+                NotificationScheduler.cancelDailyReminder(
+                    applicationContext
+                )
+            }
+        }
 
         enableEdgeToEdge()
 
