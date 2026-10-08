@@ -17,8 +17,11 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -29,6 +32,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -44,7 +49,6 @@ import com.mueez.genzhabittracker.viewmodel.HabitViewModelFactory
 fun YearInPixelsScreen(
     navController: NavController
 ) {
-
     val habitDao =
         DatabaseProvider.database.habitDao()
 
@@ -72,15 +76,11 @@ fun YearInPixelsScreen(
     }
 
     LaunchedEffect(Unit) {
-
         habitViewModel.getAllHabits { habits ->
-
             habits.forEach { habit ->
-
                 habitViewModel.getCompletionsForHabit(
                     habit.id
                 ) { result ->
-
                     completions =
                         completions + result
                 }
@@ -118,14 +118,15 @@ fun YearInPixelsScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(
+                horizontal = 20.dp,
+                vertical = 16.dp
+            )
     ) {
-
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-
             IconButton(
                 onClick = {
                     navController.popBackStack()
@@ -133,114 +134,257 @@ fun YearInPixelsScreen(
             ) {
                 Icon(
                     imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "Back"
+                    contentDescription = "Back",
+                    tint = MaterialTheme.colorScheme.onBackground
                 )
             }
 
             Text(
                 text = "Year in Pixels",
-                fontSize = 24.sp
+                fontSize = 30.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onBackground
             )
         }
 
         Spacer(
-            modifier = Modifier.height(8.dp)
+            modifier = Modifier.height(4.dp)
         )
 
         Text(
             text = "Every day is a small pixel in your year.",
-            fontSize = 14.sp
+            modifier = Modifier.padding(start = 4.dp),
+            fontSize = 14.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
         Spacer(
-            modifier = Modifier.height(12.dp)
+            modifier = Modifier.height(20.dp)
         )
 
-        Text(
-            text = "Completed days: $completedDayCount",
-            fontSize = 14.sp
-        )
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(20.dp),
+            colors = CardDefaults.cardColors(
+                containerColor =
+                    MaterialTheme.colorScheme.surfaceVariant
+            )
+        ) {
+            Column(
+                modifier = Modifier.padding(18.dp)
+            ) {
+                Text(
+                    text = "Your Year",
+                    fontSize = 19.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
 
-        Spacer(
-            modifier = Modifier.height(4.dp)
-        )
+                Spacer(
+                    modifier = Modifier.height(14.dp)
+                )
 
-        Text(
-            text = "Year completion: $completionPercentage%",
-            fontSize = 14.sp
-        )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement =
+                        Arrangement.SpaceBetween
+                ) {
+                    Column {
+                        Text(
+                            text = "Completed",
+                            fontSize = 12.sp,
+                            color =
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                        )
 
-        Spacer(
-            modifier = Modifier.height(4.dp)
-        )
+                        Spacer(
+                            modifier = Modifier.height(4.dp)
+                        )
 
-        Text(
-            text = "Today: Day $currentDay / $totalDays",
-            fontSize = 14.sp
-        )
+                        Text(
+                            text = completedDayCount.toString(),
+                            fontSize = 22.sp,
+                            fontWeight = FontWeight.Bold,
+                            color =
+                                MaterialTheme.colorScheme.onSurface
+                        )
+                    }
 
-        Spacer(
-            modifier = Modifier.height(8.dp)
-        )
+                    Column(
+                        horizontalAlignment =
+                            Alignment.End
+                    ) {
+                        Text(
+                            text = "Completion",
+                            fontSize = 12.sp,
+                            color =
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                        )
 
-        Text(
-            text = "🟩 Completed   🟦 Today   ⬜ Missed   ⬜ Future",
-            fontSize = 12.sp
-        )
+                        Spacer(
+                            modifier = Modifier.height(4.dp)
+                        )
+
+                        Text(
+                            text = "$completionPercentage%",
+                            fontSize = 22.sp,
+                            fontWeight = FontWeight.Bold,
+                            color =
+                                MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+
+                    Column(
+                        horizontalAlignment =
+                            Alignment.End
+                    ) {
+                        Text(
+                            text = "Today",
+                            fontSize = 12.sp,
+                            color =
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+
+                        Spacer(
+                            modifier = Modifier.height(4.dp)
+                        )
+
+                        Text(
+                            text = "$currentDay/$totalDays",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            color =
+                                MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                }
+            }
+        }
 
         Spacer(
             modifier = Modifier.height(16.dp)
         )
 
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(7),
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
-            verticalArrangement = Arrangement.spacedBy(6.dp),
-            modifier = Modifier.fillMaxWidth()
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(18.dp),
+            colors = CardDefaults.cardColors(
+                containerColor =
+                    MaterialTheme.colorScheme.surfaceVariant
+            )
         ) {
+            Column(
+                modifier = Modifier.padding(16.dp)
+            ) {
+                Text(
+                    text = "Year Overview",
+                    fontSize = 17.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color =
+                        MaterialTheme.colorScheme.onSurface
+                )
 
-            items(days) { day ->
+                Spacer(
+                    modifier = Modifier.height(12.dp)
+                )
 
-                val dateForDay =
-                    YearPixelCalculator.getDateForDayOfYear(
-                        day
-                    )
-
-                val isCompleted =
-                    completedDates.contains(
-                        dateForDay
-                    )
-
-                val pixelColor =
-                    when {
-                        isCompleted ->
-                            Color(0xFF4CAF50)
-
-                        day == currentDay ->
-                            Color(0xFF2196F3)
-
-                        day < currentDay ->
-                            Color(0xFFBDBDBD)
-
-                        else ->
-                            Color(0xFFE8E8E8)
-                    }
-
-                Box(
-                    modifier = Modifier
-                        .size(32.dp)
-                        .background(
-                            color = pixelColor,
-                            shape = RoundedCornerShape(6.dp)
-                        ),
-                    contentAlignment = Alignment.Center
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement =
+                        Arrangement.SpaceBetween
                 ) {
+                    Text(
+                        text = "🟩 Completed",
+                        fontSize = 12.sp,
+                        color =
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                    )
 
                     Text(
-                        text = day.toString(),
-                        fontSize = 9.sp,
-                        color = Color.Black
+                        text = "🟦 Today",
+                        fontSize = 12.sp,
+                        color =
+                            MaterialTheme.colorScheme.onSurfaceVariant
                     )
+
+                    Text(
+                        text = "⬜ Missed / Future",
+                        fontSize = 12.sp,
+                        color =
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        }
+
+        Spacer(
+            modifier = Modifier.height(16.dp)
+        )
+
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f),
+            shape = RoundedCornerShape(20.dp),
+            colors = CardDefaults.cardColors(
+                containerColor =
+                    MaterialTheme.colorScheme.surfaceVariant
+            )
+        ) {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(7),
+                horizontalArrangement =
+                    Arrangement.spacedBy(6.dp),
+                verticalArrangement =
+                    Arrangement.spacedBy(6.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(14.dp)
+            ) {
+                items(days) { day ->
+
+                    val dateForDay =
+                        YearPixelCalculator
+                            .getDateForDayOfYear(day)
+
+                    val isCompleted =
+                        completedDates.contains(
+                            dateForDay
+                        )
+
+                    val pixelColor =
+                        when {
+                            isCompleted ->
+                                Color(0xFF4CAF50)
+
+                            day == currentDay ->
+                                Color(0xFF2196F3)
+
+                            day < currentDay ->
+                                Color(0xFFBDBDBD)
+
+                            else ->
+                                Color(0xFFE8E8E8)
+                        }
+
+                    Box(
+                        modifier = Modifier
+                            .size(32.dp)
+                            .background(
+                                color = pixelColor,
+                                shape =
+                                    RoundedCornerShape(6.dp)
+                            ),
+                        contentAlignment =
+                            Alignment.Center
+                    ) {
+                        Text(
+                            text = day.toString(),
+                            fontSize = 9.sp,
+                            textAlign = TextAlign.Center,
+                            color = Color.Black
+                        )
+                    }
                 }
             }
         }

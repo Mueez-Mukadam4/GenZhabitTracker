@@ -20,24 +20,36 @@ class HabitViewModel(
     private val firestoreHabitCompletionRepository =
         FirestoreHabitCompletionRepository()
 
-    fun addHabit(habit: Habit) {
+    fun addHabit(
+        habit: Habit,
+        onComplete: () -> Unit = {}
+    ) {
         viewModelScope.launch {
             habitRepository.insertHabit(habit)
             firestoreHabitRepository.uploadHabit(habit)
+            onComplete()
         }
     }
 
-    fun updateHabit(habit: Habit) {
+    fun updateHabit(
+        habit: Habit,
+        onComplete: () -> Unit = {}
+    ) {
         viewModelScope.launch {
             habitRepository.updateHabit(habit)
             firestoreHabitRepository.uploadHabit(habit)
+            onComplete()
         }
     }
 
-    fun deleteHabit(habit: Habit) {
+    fun deleteHabit(
+        habit: Habit,
+        onComplete: () -> Unit = {}
+    ) {
         viewModelScope.launch {
             habitRepository.deleteHabit(habit)
             firestoreHabitRepository.deleteHabit(habit.id)
+            onComplete()
         }
     }
 
@@ -55,9 +67,7 @@ class HabitViewModel(
         onResult: (Habit?) -> Unit
     ) {
         viewModelScope.launch {
-            val habit =
-                habitRepository.getHabitById(habitId)
-
+            val habit = habitRepository.getHabitById(habitId)
             onResult(habit)
         }
     }
@@ -67,15 +77,23 @@ class HabitViewModel(
         onComplete: () -> Unit = {}
     ) {
         viewModelScope.launch {
-
-            habitRepository.saveCompletion(
-                completion
-            )
-
-            firestoreHabitCompletionRepository
-                .uploadCompletion(
-                    completion
+            val existingCompletions =
+                habitRepository.getCompletionsForHabit(
+                    completion.habitId
                 )
+
+            val alreadyExists =
+                existingCompletions.any { existing ->
+                    existing.completedDate ==
+                            completion.completedDate
+                }
+
+            if (!alreadyExists) {
+                habitRepository.saveCompletion(completion)
+
+                firestoreHabitCompletionRepository
+                    .uploadCompletion(completion)
+            }
 
             onComplete()
         }
@@ -86,7 +104,6 @@ class HabitViewModel(
         onResult: (List<HabitCompletion>) -> Unit
     ) {
         viewModelScope.launch {
-
             val completions =
                 habitRepository.getCompletionsForHabit(
                     habitId
@@ -101,7 +118,6 @@ class HabitViewModel(
         onResult: (Int) -> Unit
     ) {
         viewModelScope.launch {
-
             val completions =
                 habitRepository.getCompletionsForHabit(
                     habitId
@@ -120,7 +136,6 @@ class HabitViewModel(
         onComplete: () -> Unit = {}
     ) {
         viewModelScope.launch {
-
             val result =
                 firestoreHabitRepository.getHabits()
 
@@ -130,7 +145,9 @@ class HabitViewModel(
                     habitRepository.getAllHabits()
 
                 val cloudHabitIds =
-                    cloudHabits.map { it.id }.toSet()
+                    cloudHabits
+                        .map { it.id }
+                        .toSet()
 
                 cloudHabits.forEach { cloudHabit ->
 
@@ -155,6 +172,42 @@ class HabitViewModel(
                     if (localHabit.id !in cloudHabitIds) {
                         habitRepository.deleteHabit(
                             localHabit
+                        )
+                    }
+                }
+            }
+
+            onComplete()
+        }
+    }
+
+    fun syncCompletionsFromFirestore(
+        onComplete: () -> Unit = {}
+    ) {
+        viewModelScope.launch {
+            val result =
+                firestoreHabitCompletionRepository
+                    .getCompletions()
+
+            result.onSuccess { cloudCompletions ->
+
+                cloudCompletions.forEach { cloudCompletion ->
+
+                    val localCompletions =
+                        habitRepository
+                            .getCompletionsForHabit(
+                                cloudCompletion.habitId
+                            )
+
+                    val alreadyExists =
+                        localCompletions.any { localCompletion ->
+                            localCompletion.completedDate ==
+                                    cloudCompletion.completedDate
+                        }
+
+                    if (!alreadyExists) {
+                        habitRepository.saveCompletion(
+                            cloudCompletion
                         )
                     }
                 }

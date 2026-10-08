@@ -1,14 +1,19 @@
-
 package com.mueez.genzhabittracker.presentation.screens.home
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -24,15 +29,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.mueez.genzhabittracker.data.database.DatabaseProvider
 import com.mueez.genzhabittracker.data.model.Habit
-import com.mueez.genzhabittracker.data.model.HabitCompletion
 import com.mueez.genzhabittracker.data.repository.HabitRepository
-import com.mueez.genzhabittracker.presentation.components.HabitCard
 import com.mueez.genzhabittracker.utils.MomentumCalculator
 import com.mueez.genzhabittracker.utils.RecoveryMode
 import com.mueez.genzhabittracker.utils.StreakShield
 import com.mueez.genzhabittracker.utils.YearPixelCalculator
 import com.mueez.genzhabittracker.viewmodel.HabitViewModel
 import com.mueez.genzhabittracker.viewmodel.HabitViewModelFactory
+import java.util.Calendar
 
 @Composable
 fun HomeScreen(
@@ -71,17 +75,18 @@ fun HomeScreen(
 
     LaunchedEffect(Unit) {
         habitViewModel.syncHabitsFromFirestore {
-            habitViewModel.getAllHabits { result ->
-                habits = result
+            habitViewModel.syncCompletionsFromFirestore {
+                habitViewModel.getAllHabits { result ->
+                    habits = result
 
-                result.forEach { habit ->
-                    habitViewModel.getCurrentStreak(
-                        habit.id
-                    ) { streak ->
-
-                        habitStreaks =
-                            habitStreaks +
-                                    (habit.id to streak)
+                    result.forEach { habit ->
+                        habitViewModel.getCurrentStreak(
+                            habit.id
+                        ) { streak ->
+                            habitStreaks =
+                                habitStreaks +
+                                        (habit.id to streak)
+                        }
                     }
                 }
             }
@@ -133,254 +138,36 @@ fun HomeScreen(
     val totalDaysInYear =
         YearPixelCalculator.getTotalDaysInYear()
 
+    val currentHour =
+        Calendar.getInstance()
+            .get(Calendar.HOUR_OF_DAY)
+
+    val greeting =
+        when (currentHour) {
+            in 5..11 -> "Good morning 👋"
+            in 12..16 -> "Good afternoon ☀️"
+            in 17..20 -> "Good evening 🌆"
+            else -> "Good night 🌙"
+        }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(24.dp),
+            .verticalScroll(
+                rememberScrollState()
+            )
+            .padding(
+                horizontal = 20.dp,
+                vertical = 24.dp
+            ),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.Start
     ) {
-        Text(
-            text = "Good morning 👋",
-            fontSize = 28.sp
-        )
 
         Text(
-            text = "GenZhabit Tracker",
-            fontSize = 14.sp
-        )
-
-        Spacer(
-            modifier = Modifier.height(8.dp)
-        )
-
-        Text(
-            text = "Ready to build your day?",
-            fontSize = 16.sp
-        )
-
-        Spacer(
-            modifier = Modifier.height(32.dp)
-        )
-
-        Text(
-            text = "Your Progress",
-            fontSize = 20.sp
-        )
-
-        Spacer(
-            modifier = Modifier.height(12.dp)
-        )
-
-        Text(
-            text = "$progress% Complete",
-            fontSize = 18.sp
-        )
-
-        Spacer(
-            modifier = Modifier.height(12.dp)
-        )
-
-        Text(
-            text = if (habits.isEmpty()) {
-                "Start your first habit to begin tracking your progress."
-            } else if (progress == 100) {
-                "Amazing! You completed all your habits today. 🎉"
-            } else {
-                "Keep going! Every small step counts. 💪"
-            },
-            fontSize = 14.sp
-        )
-
-        if (shouldOfferRecovery) {
-            Spacer(
-                modifier = Modifier.height(16.dp)
-            )
-
-            Text(
-                text = "🌱 Recovery Mode: Start again today. Missing a day doesn't mean you failed.",
-                fontSize = 14.sp
-            )
-        }
-
-        if (canUseStreakShield) {
-            Spacer(
-                modifier = Modifier.height(8.dp)
-            )
-
-            Text(
-                text = "🛡️ Streak Shield available",
-                fontSize = 14.sp
-            )
-        }
-
-        Spacer(
-            modifier = Modifier.height(8.dp)
-        )
-
-        Text(
-            text = "🔥 Momentum: $momentum",
-            fontSize = 14.sp
-        )
-
-        Spacer(
-            modifier = Modifier.height(8.dp)
-        )
-
-        Text(
-            text = "📅 Year in Pixels: Day $currentYearDay / $totalDaysInYear",
-            fontSize = 14.sp
-        )
-
-        Spacer(
-            modifier = Modifier.height(32.dp)
-        )
-
-        Text(
-            text = "Today's Habits",
-            fontSize = 20.sp
-        )
-
-        Spacer(
-            modifier = Modifier.height(12.dp)
-        )
-
-        if (habits.isEmpty()) {
-
-            Text(
-                text = "No habits yet",
-                fontSize = 16.sp
-            )
-
-            Spacer(
-                modifier = Modifier.height(16.dp)
-            )
-
-            Text(
-                text = "Create your first habit and start your journey.",
-                fontSize = 14.sp
-            )
-
-        } else {
-
-            habits.forEach { habit ->
-
-                HabitCard(
-                    habit = habit,
-                    streak = habitStreaks[habit.id] ?: 0,
-
-                    onCompletionChanged = { updatedHabit ->
-
-                        habitViewModel.updateHabit(
-                            updatedHabit
-                        )
-
-                        if (updatedHabit.isCompleted) {
-
-                            val completion =
-                                HabitCompletion(
-                                    habitId =
-                                        updatedHabit.id,
-
-                                    completedDate =
-                                        java.text.SimpleDateFormat(
-                                            "yyyy-MM-dd",
-                                            java.util.Locale.getDefault()
-                                        ).format(
-                                            java.util.Date()
-                                        )
-                                )
-
-                            habitViewModel.saveCompletionIfNeeded(
-                                completion
-                            ) {
-
-                                habitViewModel.getCurrentStreak(
-                                    updatedHabit.id
-                                ) { streak ->
-
-                                    habitStreaks =
-                                        habitStreaks +
-                                                (
-                                                        updatedHabit.id to streak
-                                                        )
-                                }
-                            }
-
-                        } else {
-
-                            habitViewModel.getCurrentStreak(
-                                updatedHabit.id
-                            ) { streak ->
-
-                                habitStreaks =
-                                    habitStreaks +
-                                            (
-                                                    updatedHabit.id to streak
-                                                    )
-                            }
-                        }
-
-                        habitViewModel.getAllHabits {
-                                updatedHabits ->
-
-                            habits = updatedHabits
-                        }
-                    },
-
-                    onDelete = { habitToDelete ->
-
-                        habitViewModel.deleteHabit(
-                            habitToDelete
-                        )
-
-                        habitViewModel.getAllHabits {
-                                updatedHabits ->
-
-                            habits = updatedHabits
-
-                            habitStreaks =
-                                habitStreaks -
-                                        habitToDelete.id
-                        }
-                    },
-
-                    onEdit = { habitToEdit ->
-
-                        navController.navigate(
-                            "edit/${habitToEdit.id}"
-                        )
-                    }
-                )
-
-                Spacer(
-                    modifier = Modifier.height(12.dp)
-                )
-            }
-        }
-
-        Spacer(
-            modifier = Modifier.height(20.dp)
-        )
-
-        Button(
-            onClick = {
-                navController.navigate("habit")
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(
-                text = "+ Create Habit"
-            )
-        }
-
-        Spacer(
-            modifier = Modifier.height(12.dp)
-        )
-
-        Text(
-            text = "Plan & Reflect",
-            fontSize = 20.sp
+            text = greeting,
+            fontSize = 30.sp,
+            color = MaterialTheme.colorScheme.onBackground
         )
 
         Spacer(
@@ -388,97 +175,221 @@ fun HomeScreen(
         )
 
         Text(
-            text = "Review your habit progress and stay consistent.",
-            fontSize = 14.sp
+            text = "GenZhabit Tracker",
+            fontSize = 14.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
         Spacer(
-            modifier = Modifier.height(12.dp)
+            modifier = Modifier.height(4.dp)
         )
 
-        Button(
-            onClick = {
-                navController.navigate("calendar")
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(
-                text = "📅 Calendar"
-            )
-        }
-
-        Spacer(
-            modifier = Modifier.height(12.dp)
+        Text(
+            text = "Ready to build your day?",
+            fontSize = 16.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-
-        Button(
-            onClick = {
-                navController.navigate("todo")
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(
-                text = "📝 To-Do List"
-            )
-        }
-
-        Spacer(
-            modifier = Modifier.height(12.dp)
-        )
-
-        Button(
-            onClick = {
-                navController.navigate("quotes")
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(
-                text = "✨ Motivational Quotes"
-            )
-        }
-
-        Spacer(
-            modifier = Modifier.height(12.dp)
-        )
-
-        Button(
-            onClick = {
-                navController.navigate("yearinpixels")
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(
-                text = "📊 Year in Pixels"
-            )
-        }
-
-        Spacer(
-            modifier = Modifier.height(12.dp)
-        )
-
-        Button(
-            onClick = {
-                navController.navigate("settings")
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(
-                text = "⚙️ Settings"
-            )
-        }
 
         Spacer(
             modifier = Modifier.height(24.dp)
         )
 
-        Button(
-            onClick = onLogoutClick,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(
-                text = "Logout"
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(
+                containerColor =
+                    MaterialTheme.colorScheme.surfaceVariant
             )
+        ) {
+
+            Column(
+                modifier = Modifier.padding(20.dp)
+            ) {
+
+                Text(
+                    text = "Your Progress",
+                    fontSize = 20.sp,
+                    color =
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                Spacer(
+                    modifier = Modifier.height(8.dp)
+                )
+
+                Text(
+                    text = "$progress%",
+                    fontSize = 36.sp,
+                    color =
+                        MaterialTheme.colorScheme.onSurface
+                )
+
+                Text(
+                    text = "Complete",
+                    fontSize = 14.sp,
+                    color =
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                Spacer(
+                    modifier = Modifier.height(16.dp)
+                )
+
+                LinearProgressIndicator(
+                    progress = {
+                        progress / 100f
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(
+                    modifier = Modifier.height(12.dp)
+                )
+
+                Text(
+                    text = when {
+                        habits.isEmpty() ->
+                            "Start your first habit to begin tracking your progress."
+
+                        progress == 100 ->
+                            "Amazing! You completed all your habits today. 🎉"
+
+                        else ->
+                            "Keep going! Every small step counts. 💪"
+                    },
+                    fontSize = 14.sp,
+                    color =
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
         }
+
+        if (shouldOfferRecovery) {
+
+            Spacer(
+                modifier = Modifier.height(12.dp)
+            )
+
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor =
+                        MaterialTheme.colorScheme.surfaceVariant
+                )
+            ) {
+
+                Text(
+                    text = "🌱 Recovery Mode\nStart again today. Missing a day doesn't mean you failed.",
+                    modifier = Modifier.padding(18.dp),
+                    fontSize = 14.sp,
+                    color =
+                        MaterialTheme.colorScheme.onSurface
+                )
+            }
+        }
+
+        if (canUseStreakShield) {
+
+            Spacer(
+                modifier = Modifier.height(12.dp)
+            )
+
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor =
+                        MaterialTheme.colorScheme.surfaceVariant
+                )
+            ) {
+
+                Text(
+                    text = "🛡️ Streak Shield available",
+                    modifier = Modifier.padding(18.dp),
+                    fontSize = 14.sp,
+                    color =
+                        MaterialTheme.colorScheme.onSurface
+                )
+            }
+        }
+
+        Spacer(
+            modifier = Modifier.height(12.dp)
+        )
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement =
+                Arrangement.spacedBy(12.dp)
+        ) {
+
+            Card(
+                modifier = Modifier.weight(1f),
+                colors = CardDefaults.cardColors(
+                    containerColor =
+                        MaterialTheme.colorScheme.surfaceVariant
+                )
+            ) {
+
+                Column(
+                    modifier = Modifier.padding(16.dp)
+                ) {
+
+                    Text(
+                        text = "🔥 Momentum",
+                        fontSize = 14.sp,
+                        color =
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
+                    Spacer(
+                        modifier = Modifier.height(6.dp)
+                    )
+
+                    Text(
+                        text = momentum.toString(),
+                        fontSize = 22.sp,
+                        color =
+                            MaterialTheme.colorScheme.onSurface
+                    )
+                }
+            }
+
+            Card(
+                modifier = Modifier.weight(1f),
+                colors = CardDefaults.cardColors(
+                    containerColor =
+                        MaterialTheme.colorScheme.surfaceVariant
+                )
+            ) {
+
+                Column(
+                    modifier = Modifier.padding(16.dp)
+                ) {
+
+                    Text(
+                        text = "📅 Year in Pixels",
+                        fontSize = 14.sp,
+                        color =
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
+                    Spacer(
+                        modifier = Modifier.height(6.dp)
+                    )
+
+                    Text(
+                        text =
+                            "Day $currentYearDay / $totalDaysInYear",
+                        fontSize = 16.sp,
+                        color =
+                            MaterialTheme.colorScheme.onSurface
+                    )
+                }
+            }
+        }
+
+        Spacer(
+            modifier = Modifier.height(20.dp)
+        )
     }
 }
-

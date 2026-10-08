@@ -1,15 +1,21 @@
-
 package com.mueez.genzhabittracker.presentation.screens.edit
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -18,14 +24,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-
-
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import com.mueez.genzhabittracker.data.database.DatabaseProvider
 import com.mueez.genzhabittracker.data.model.Habit
 import com.mueez.genzhabittracker.data.repository.HabitRepository
@@ -71,7 +73,8 @@ fun EditHabitScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(24.dp)
+            .padding(24.dp),
+        verticalArrangement = Arrangement.Top
     ) {
 
         TextButton(
@@ -82,7 +85,7 @@ fun EditHabitScreen(
             Text(
                 text = "←",
                 fontSize = 28.sp,
-                color = Color.Black
+                color = MaterialTheme.colorScheme.onBackground
             )
         }
 
@@ -93,7 +96,7 @@ fun EditHabitScreen(
         Text(
             text = "Edit Habit",
             fontSize = 28.sp,
-            color = Color.Black
+            color = MaterialTheme.colorScheme.onBackground
         )
 
         Spacer(
@@ -107,16 +110,15 @@ fun EditHabitScreen(
             },
             label = {
                 Text(
-                    text = "Habit name",
-                    color = Color.Black
+                    text = "Habit name"
                 )
             },
             colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = Color.Black,
-                unfocusedTextColor = Color.Black,
-                focusedLabelColor = Color.Black,
-                unfocusedLabelColor = Color.Black,
-                cursorColor = Color.Black
+                focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                focusedLabelColor = MaterialTheme.colorScheme.primary,
+                unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                cursorColor = MaterialTheme.colorScheme.primary
             )
         )
 
@@ -127,10 +129,19 @@ fun EditHabitScreen(
         TextButton(
             onClick = {
                 frequencyExpanded = true
-            }
+            },
+            modifier = Modifier.fillMaxWidth()
         ) {
+
             Text(
-                text = "Frequency: $frequency"
+                text = "Frequency: $frequency",
+                color = MaterialTheme.colorScheme.onBackground,
+                fontSize = 16.sp
+            )
+
+            Icon(
+                imageVector = Icons.Default.ArrowDropDown,
+                contentDescription = "Select frequency"
             )
         }
 
@@ -169,14 +180,17 @@ fun EditHabitScreen(
         Button(
             onClick = {
 
-                val updatedHabit = habit.copy(
-                    name = habitName,
-                    frequency = frequency
-                )
+                if (habitName.isNotBlank()) {
 
-                habitViewModel.updateHabit(updatedHabit)
+                    val updatedHabit = habit.copy(
+                        name = habitName,
+                        frequency = frequency
+                    )
 
-                navController.popBackStack()
+                    habitViewModel.updateHabit(updatedHabit)
+
+                    navController.popBackStack()
+                }
             }
         ) {
             Text(
@@ -185,4 +199,3 @@ fun EditHabitScreen(
         }
     }
 }
-

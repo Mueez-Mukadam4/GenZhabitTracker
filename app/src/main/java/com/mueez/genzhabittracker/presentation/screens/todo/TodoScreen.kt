@@ -1,5 +1,6 @@
 package com.mueez.genzhabittracker.presentation.screens.todo
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -9,12 +10,17 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -25,14 +31,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-
 import com.mueez.genzhabittracker.data.database.DatabaseProvider
 import com.mueez.genzhabittracker.data.model.Todo
 import com.mueez.genzhabittracker.data.repository.TodoRepository
@@ -43,16 +48,19 @@ import com.mueez.genzhabittracker.viewmodel.TodoViewModelFactory
 fun TodoScreen(
     navController: NavController
 ) {
+    val todoDao =
+        DatabaseProvider.database.todoDao()
 
-    val todoDao = DatabaseProvider.database.todoDao()
+    val todoRepository =
+        TodoRepository(todoDao)
 
-    val todoRepository = TodoRepository(todoDao)
+    val factory =
+        TodoViewModelFactory(todoRepository)
 
-    val factory = TodoViewModelFactory(todoRepository)
-
-    val todoViewModel: TodoViewModel = viewModel(
-        factory = factory
-    )
+    val todoViewModel: TodoViewModel =
+        viewModel(
+            factory = factory
+        )
 
     var todos by remember {
         mutableStateOf<List<Todo>>(emptyList())
@@ -83,87 +91,173 @@ fun TodoScreen(
     }
 
     LaunchedEffect(Unit) {
-
         todoViewModel.syncTodosFromFirestore {
-
             todoViewModel.getAllTodos { result ->
                 todos = result
             }
         }
     }
 
-    val cleanedInput = todoTitle.trim()
+    val cleanedInput =
+        todoTitle.trim()
 
-    val taskAlreadyExists = todos.any {
-        it.title.equals(
-            cleanedInput,
-            ignoreCase = true
-        )
-    }
+    val taskAlreadyExists =
+        todos.any {
+            it.title.equals(
+                cleanedInput,
+                ignoreCase = true
+            )
+        }
 
-    val completedTodos = todos.count {
-        it.isCompleted
-    }
+    val completedTodos =
+        todos.count {
+            it.isCompleted
+        }
 
-    val remainingTodos = todos.size - completedTodos
+    val remainingTodos =
+        todos.size - completedTodos
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(
+                horizontal = 20.dp,
+                vertical = 16.dp
+            )
     ) {
 
-        Button(
+        TextButton(
             onClick = {
                 navController.popBackStack()
             }
         ) {
-            Text("Back")
+            Text(
+                text = "←",
+                fontSize = 28.sp,
+                color =
+                    MaterialTheme.colorScheme.onBackground
+            )
         }
-
-        Spacer(
-            modifier = Modifier.height(16.dp)
-        )
 
         Text(
             text = "To-Do List",
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold
+            fontSize = 30.sp,
+            fontWeight = FontWeight.Bold,
+            color =
+                MaterialTheme.colorScheme.onBackground
         )
 
         Spacer(
-            modifier = Modifier.height(6.dp)
+            modifier = Modifier.height(4.dp)
         )
 
         Text(
-            text = "${todos.size} tasks • $completedTodos completed • $remainingTodos remaining"
+            text = "Plan your day and get things done.",
+            fontSize = 14.sp,
+            color =
+                MaterialTheme.colorScheme.onSurfaceVariant
         )
 
-        if (todos.isNotEmpty()) {
+        Spacer(
+            modifier = Modifier.height(20.dp)
+        )
 
-            val progress =
-                (completedTodos * 100) / todos.size
-
-            Spacer(
-                modifier = Modifier.height(6.dp)
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(20.dp),
+            colors = CardDefaults.cardColors(
+                containerColor =
+                    MaterialTheme.colorScheme.surfaceVariant
             )
+        ) {
 
-            Text(
-                text = "$progress% completed",
-                fontWeight = FontWeight.Medium
-            )
+            Column(
+                modifier = Modifier.padding(18.dp)
+            ) {
 
-            Spacer(
-                modifier = Modifier.height(6.dp)
-            )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement =
+                        Arrangement.SpaceBetween
+                ) {
 
-            LinearProgressIndicator(
-                progress = {
-                    completedTodos.toFloat() /
-                            todos.size.toFloat()
-                },
-                modifier = Modifier.fillMaxWidth()
-            )
+                    Column {
+                        Text(
+                            text = "Your Progress",
+                            fontSize = 17.sp,
+                            fontWeight =
+                                FontWeight.SemiBold,
+                            color =
+                                MaterialTheme
+                                    .colorScheme
+                                    .onSurface
+                        )
+
+                        Spacer(
+                            modifier =
+                                Modifier.height(4.dp)
+                        )
+
+                        Text(
+                            text =
+                                "${todos.size} tasks • $completedTodos completed",
+                            fontSize = 13.sp,
+                            color =
+                                MaterialTheme
+                                    .colorScheme
+                                    .onSurfaceVariant
+                        )
+                    }
+
+                    Text(
+                        text =
+                            if (todos.isNotEmpty()) {
+                                "${(completedTodos * 100) / todos.size}%"
+                            } else {
+                                "0%"
+                            },
+                        fontSize = 22.sp,
+                        fontWeight =
+                            FontWeight.Bold,
+                        color =
+                            MaterialTheme
+                                .colorScheme
+                                .onSurface
+                    )
+                }
+
+                if (todos.isNotEmpty()) {
+
+                    Spacer(
+                        modifier =
+                            Modifier.height(14.dp)
+                    )
+
+                    LinearProgressIndicator(
+                        progress = {
+                            completedTodos.toFloat() /
+                                    todos.size.toFloat()
+                        },
+                        modifier =
+                            Modifier.fillMaxWidth()
+                    )
+
+                    Spacer(
+                        modifier =
+                            Modifier.height(8.dp)
+                    )
+
+                    Text(
+                        text =
+                            "$remainingTodos remaining",
+                        fontSize = 13.sp,
+                        color =
+                            MaterialTheme
+                                .colorScheme
+                                .onSurfaceVariant
+                    )
+                }
+            }
         }
 
         Spacer(
@@ -176,9 +270,13 @@ fun TodoScreen(
                 onClick = {
                     showClearCompletedDialog = true
                 },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(14.dp)
             ) {
-                Text("Clear Tasks ($completedTodos)")
+                Text(
+                    text =
+                        "Clear Completed ($completedTodos)"
+                )
             }
 
             Spacer(
@@ -186,214 +284,377 @@ fun TodoScreen(
             )
         }
 
-        OutlinedTextField(
-            value = todoTitle,
-            onValueChange = {
-
-                if (it.length <= 100) {
-
-                    todoTitle = it
-                    duplicateTask = false
-                }
-            },
-            textStyle = androidx.compose.ui.text.TextStyle(
-                color = Color.Black
-            ),
-            label = {
-                Text("Enter a task")
-            },
-            placeholder = {
-                Text("e.g. Complete Kotlin practice")
-            },
-            supportingText = {
-
-                if (duplicateTask) {
-
-                    Text(
-                        text = "This task already exists."
-                    )
-
-                } else {
-
-                    Text(
-                        text = "${todoTitle.length}/100"
-                    )
-                }
-            },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(
-            modifier = Modifier.height(8.dp)
-        )
-
-        Button(
-            onClick = {
-
-                val cleanedTitle =
-                    todoTitle.trim()
-
-                val alreadyExists = todos.any {
-                    it.title.equals(
-                        cleanedTitle,
-                        ignoreCase = true
-                    )
-                }
-
-                if (cleanedTitle.isEmpty()) {
-
-                    return@Button
-                }
-
-                if (alreadyExists) {
-
-                    duplicateTask = true
-
-                } else {
-
-                    todoViewModel.addTodo(
-                        Todo(
-                            title = cleanedTitle
-                        )
-                    ) { updatedTodos ->
-
-                        todos = updatedTodos
-                    }
-
-                    todoTitle = ""
-                    duplicateTask = false
-                }
-            },
-            enabled = todoTitle.trim().isNotEmpty() &&
-                    !taskAlreadyExists,
-            modifier = Modifier.fillMaxWidth()
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(20.dp),
+            colors = CardDefaults.cardColors(
+                containerColor =
+                    MaterialTheme.colorScheme.surfaceVariant
+            )
         ) {
-            Text("Add Task ✨")
-        }
-
-        Spacer(
-            modifier = Modifier.height(16.dp)
-        )
-
-        if (todos.isEmpty()) {
 
             Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
+                modifier = Modifier.padding(18.dp)
             ) {
 
                 Text(
-                    text = "📝",
-                    fontSize = 32.sp
+                    text = "Add a Task",
+                    fontSize = 18.sp,
+                    fontWeight =
+                        FontWeight.SemiBold,
+                    color =
+                        MaterialTheme
+                            .colorScheme
+                            .onSurface
+                )
+
+                Spacer(
+                    modifier = Modifier.height(12.dp)
+                )
+
+                OutlinedTextField(
+                    value = todoTitle,
+                    onValueChange = {
+
+                        if (it.length <= 100) {
+                            todoTitle = it
+                            duplicateTask = false
+                        }
+                    },
+                    textStyle = TextStyle(
+                        color =
+                            MaterialTheme
+                                .colorScheme
+                                .onSurface
+                    ),
+                    colors =
+                        OutlinedTextFieldDefaults.colors(
+                            focusedTextColor =
+                                MaterialTheme
+                                    .colorScheme
+                                    .onSurface,
+                            unfocusedTextColor =
+                                MaterialTheme
+                                    .colorScheme
+                                    .onSurface,
+                            focusedLabelColor =
+                                MaterialTheme
+                                    .colorScheme
+                                    .primary,
+                            unfocusedLabelColor =
+                                MaterialTheme
+                                    .colorScheme
+                                    .onSurfaceVariant,
+                            focusedPlaceholderColor =
+                                MaterialTheme
+                                    .colorScheme
+                                    .onSurfaceVariant,
+                            unfocusedPlaceholderColor =
+                                MaterialTheme
+                                    .colorScheme
+                                    .onSurfaceVariant,
+                            cursorColor =
+                                MaterialTheme
+                                    .colorScheme
+                                    .primary
+                        ),
+                    label = {
+                        Text("Task")
+                    },
+                    placeholder = {
+                        Text(
+                            "e.g. Complete Kotlin practice"
+                        )
+                    },
+                    supportingText = {
+
+                        if (duplicateTask) {
+
+                            Text(
+                                text =
+                                    "This task already exists."
+                            )
+
+                        } else {
+
+                            Text(
+                                text =
+                                    "${todoTitle.length}/100"
+                            )
+                        }
+                    },
+                    modifier =
+                        Modifier.fillMaxWidth()
                 )
 
                 Spacer(
                     modifier = Modifier.height(8.dp)
                 )
 
-                Text(
-                    text = "You're all clear! ✨",
-                    fontWeight = FontWeight.Medium
-                )
+                Button(
+                    onClick = {
 
-                Spacer(
-                    modifier = Modifier.height(4.dp)
-                )
+                        val cleanedTitle =
+                            todoTitle.trim()
 
-                Text(
-                    text = "Add a task and start getting things done."
+                        val alreadyExists =
+                            todos.any {
+                                it.title.equals(
+                                    cleanedTitle,
+                                    ignoreCase = true
+                                )
+                            }
+
+                        if (cleanedTitle.isEmpty()) {
+                            return@Button
+                        }
+
+                        if (alreadyExists) {
+
+                            duplicateTask = true
+
+                        } else {
+
+                            todoViewModel.addTodo(
+                                Todo(
+                                    title =
+                                        cleanedTitle
+                                )
+                            ) { updatedTodos ->
+
+                                todos =
+                                    updatedTodos
+                            }
+
+                            todoTitle = ""
+                            duplicateTask = false
+                        }
+                    },
+                    enabled =
+                        todoTitle.trim().isNotEmpty() &&
+                                !taskAlreadyExists,
+                    modifier =
+                        Modifier.fillMaxWidth(),
+                    shape =
+                        RoundedCornerShape(14.dp)
+                ) {
+                    Text(
+                        text = "Add Task ✨"
+                    )
+                }
+            }
+        }
+
+        Spacer(
+            modifier = Modifier.height(20.dp)
+        )
+
+        Text(
+            text = "Your Tasks",
+            fontSize = 22.sp,
+            fontWeight =
+                FontWeight.SemiBold,
+            color =
+                MaterialTheme.colorScheme.onBackground
+        )
+
+        Spacer(
+            modifier = Modifier.height(10.dp)
+        )
+
+        if (todos.isEmpty()) {
+
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(18.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor =
+                        MaterialTheme
+                            .colorScheme
+                            .surfaceVariant
                 )
+            ) {
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(24.dp),
+                    horizontalAlignment =
+                        Alignment.CenterHorizontally
+                ) {
+
+                    Text(
+                        text = "📝",
+                        fontSize = 32.sp
+                    )
+
+                    Spacer(
+                        modifier = Modifier.height(8.dp)
+                    )
+
+                    Text(
+                        text =
+                            "You're all clear! ✨",
+                        fontSize = 17.sp,
+                        fontWeight =
+                            FontWeight.Medium,
+                        color =
+                            MaterialTheme
+                                .colorScheme
+                                .onSurface
+                    )
+
+                    Spacer(
+                        modifier = Modifier.height(4.dp)
+                    )
+
+                    Text(
+                        text =
+                            "Add a task and start getting things done.",
+                        fontSize = 13.sp,
+                        color =
+                            MaterialTheme
+                                .colorScheme
+                                .onSurfaceVariant
+                    )
+                }
             }
 
         } else {
 
             LazyColumn(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
             ) {
 
                 items(
                     items = todos,
-                    key = { todo -> todo.id }
+                    key = { todo ->
+                        todo.id
+                    }
                 ) { todo ->
 
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 6.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                    Card(
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(
+                                    bottom = 10.dp
+                                ),
+                        shape =
+                            RoundedCornerShape(16.dp),
+                        colors =
+                            CardDefaults.cardColors(
+                                containerColor =
+                                    MaterialTheme
+                                        .colorScheme
+                                        .surfaceVariant
+                            )
                     ) {
 
-                        Checkbox(
-                            checked = todo.isCompleted,
-                            onCheckedChange = { isChecked ->
+                        Column(
+                            modifier =
+                                Modifier.padding(12.dp)
+                        ) {
 
-                                todoViewModel.updateTodo(
-                                    todo.copy(
-                                        isCompleted = isChecked
-                                    )
-                                ) { updatedTodos ->
+                            Row(
+                                modifier =
+                                    Modifier.fillMaxWidth(),
+                                verticalAlignment =
+                                    Alignment.CenterVertically
+                            ) {
 
-                                    todos = updatedTodos
+                                Checkbox(
+                                    checked =
+                                        todo.isCompleted,
+                                    onCheckedChange = {
+                                            isChecked ->
+
+                                        todoViewModel
+                                            .updateTodo(
+                                                todo.copy(
+                                                    isCompleted =
+                                                        isChecked
+                                                )
+                                            ) {
+                                                    updatedTodos ->
+
+                                                todos =
+                                                    updatedTodos
+                                            }
+                                    }
+                                )
+
+                                Spacer(
+                                    modifier =
+                                        Modifier.height(1.dp)
+                                )
+
+                                Text(
+                                    text = todo.title,
+                                    modifier =
+                                        Modifier.weight(1f),
+                                    color =
+                                        if (
+                                            todo.isCompleted
+                                        ) {
+                                            MaterialTheme
+                                                .colorScheme
+                                                .onSurfaceVariant
+                                        } else {
+                                            MaterialTheme
+                                                .colorScheme
+                                                .onSurface
+                                        },
+                                    textDecoration =
+                                        if (
+                                            todo.isCompleted
+                                        ) {
+                                            TextDecoration
+                                                .LineThrough
+                                        } else {
+                                            TextDecoration
+                                                .None
+                                        }
+                                )
+                            }
+
+                            Spacer(
+                                modifier =
+                                    Modifier.height(6.dp)
+                            )
+
+                            Row(
+                                modifier =
+                                    Modifier.fillMaxWidth(),
+                                horizontalArrangement =
+                                    Arrangement.End
+                            ) {
+
+                                TextButton(
+                                    onClick = {
+                                        todoToEdit =
+                                            todo
+
+                                        editedTodoTitle =
+                                            todo.title
+                                    }
+                                ) {
+                                    Text("Edit")
+                                }
+
+                                TextButton(
+                                    onClick = {
+                                        todoToDelete =
+                                            todo
+                                    }
+                                ) {
+                                    Text("Delete")
                                 }
                             }
-                        )
-
-                        Spacer(
-                            modifier = Modifier.padding(
-                                horizontal = 2.dp
-                            )
-                        )
-
-                        Text(
-                            text = todo.title,
-                            modifier = Modifier.weight(1f),
-                            color = if (todo.isCompleted) {
-                                Color.Gray
-                            } else {
-                                Color.Unspecified
-                            },
-                            textDecoration = if (todo.isCompleted) {
-                                TextDecoration.LineThrough
-                            } else {
-                                TextDecoration.None
-                            }
-                        )
-
-                        Spacer(
-                            modifier = Modifier.padding(
-                                horizontal = 2.dp
-                            )
-                        )
-
-                        Button(
-                            onClick = {
-                                todoToEdit = todo
-                                editedTodoTitle = todo.title
-                            }
-                        ) {
-                            Text("Edit")
-                        }
-
-                        Spacer(
-                            modifier = Modifier.padding(
-                                horizontal = 2.dp
-                            )
-                        )
-
-                        Button(
-                            onClick = {
-                                todoToDelete = todo
-                            }
-                        ) {
-                            Text("Delete Task")
                         }
                     }
-
-                    HorizontalDivider()
-
-                    Spacer(
-                        modifier = Modifier.height(8.dp)
-                    )
                 }
             }
         }
@@ -423,7 +684,8 @@ fun TodoScreen(
                                     todo
                                 ) { updatedTodos ->
 
-                                    todos = updatedTodos
+                                    todos =
+                                        updatedTodos
                                 }
                             }
 
@@ -465,12 +727,15 @@ fun TodoScreen(
                     TextButton(
                         onClick = {
 
-                            todoViewModel.deleteCompletedTodos { updatedTodos ->
+                            todoViewModel
+                                .deleteCompletedTodos {
+                                        updatedTodos ->
+                                    todos =
+                                        updatedTodos
+                                }
 
-                                todos = updatedTodos
-                            }
-
-                            showClearCompletedDialog = false
+                            showClearCompletedDialog =
+                                false
                         }
                     ) {
                         Text("Clear Tasks")
@@ -509,21 +774,58 @@ fun TodoScreen(
                                 editedTodoTitle = it
                             }
                         },
-                        textStyle = androidx.compose.ui.text.TextStyle(
-                            color = Color.Black
+                        textStyle = TextStyle(
+                            color =
+                                MaterialTheme
+                                    .colorScheme
+                                    .onSurface
                         ),
+                        colors =
+                            OutlinedTextFieldDefaults.colors(
+                                focusedTextColor =
+                                    MaterialTheme
+                                        .colorScheme
+                                        .onSurface,
+                                unfocusedTextColor =
+                                    MaterialTheme
+                                        .colorScheme
+                                        .onSurface,
+                                focusedLabelColor =
+                                    MaterialTheme
+                                        .colorScheme
+                                        .primary,
+                                unfocusedLabelColor =
+                                    MaterialTheme
+                                        .colorScheme
+                                        .onSurfaceVariant,
+                                focusedPlaceholderColor =
+                                    MaterialTheme
+                                        .colorScheme
+                                        .onSurfaceVariant,
+                                unfocusedPlaceholderColor =
+                                    MaterialTheme
+                                        .colorScheme
+                                        .onSurfaceVariant,
+                                cursorColor =
+                                    MaterialTheme
+                                        .colorScheme
+                                        .primary
+                            ),
                         label = {
                             Text("Task")
                         },
                         placeholder = {
-                            Text("e.g. Complete Kotlin practice")
+                            Text(
+                                "e.g. Complete Kotlin practice"
+                            )
                         },
                         supportingText = {
                             Text(
                                 "${editedTodoTitle.length}/100"
                             )
                         },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier =
+                            Modifier.fillMaxWidth()
                     )
                 },
                 confirmButton = {
@@ -536,7 +838,8 @@ fun TodoScreen(
 
                             val duplicateEdit =
                                 todos.any {
-                                    it.id != todoToEdit?.id &&
+                                    it.id !=
+                                            todoToEdit?.id &&
                                             it.title.equals(
                                                 cleanedTitle,
                                                 ignoreCase = true
@@ -550,14 +853,18 @@ fun TodoScreen(
 
                                 todoToEdit?.let { todo ->
 
-                                    todoViewModel.updateTodo(
-                                        todo.copy(
-                                            title = cleanedTitle
-                                        )
-                                    ) { updatedTodos ->
+                                    todoViewModel
+                                        .updateTodo(
+                                            todo.copy(
+                                                title =
+                                                    cleanedTitle
+                                            )
+                                        ) {
+                                                updatedTodos ->
 
-                                        todos = updatedTodos
-                                    }
+                                            todos =
+                                                updatedTodos
+                                        }
                                 }
 
                                 todoToEdit = null

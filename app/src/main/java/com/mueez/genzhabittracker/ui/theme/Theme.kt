@@ -1,12 +1,10 @@
 package com.mueez.genzhabittracker.ui.theme
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-
 
 private val ColorLightBackground = Color(0xFFF8F8F8)
 private val ColorLightSurface = Color(0xFFFFFFFF)
@@ -61,17 +59,18 @@ private val LightColorScheme = lightColorScheme(
     onError = GenZTextPrimary
 )
 
-
 @Composable
 fun GenZhabitTrackerTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    darkTheme: Boolean,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = if (darkTheme) {
-        DarkColorScheme
-    } else {
-        LightColorScheme
-    }
+
+    val colorScheme =
+        if (darkTheme) {
+            DarkColorScheme
+        } else {
+            LightColorScheme
+        }
 
     MaterialTheme(
         colorScheme = colorScheme,
