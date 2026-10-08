@@ -11,9 +11,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -21,11 +22,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 @Composable
 fun LoginScreen(
@@ -36,7 +40,6 @@ fun LoginScreen(
     successMessage: String? = null,
     isLoading: Boolean = false
 ) {
-
     var email by remember {
         mutableStateOf("")
     }
@@ -52,16 +55,36 @@ fun LoginScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(24.dp),
-        verticalArrangement = Arrangement.Center
+            .padding(
+                horizontal = 24.dp,
+                vertical = 32.dp
+            ),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-
         Text(
-            text = "Login"
+            text = "Welcome Back",
+            modifier = Modifier.fillMaxWidth(),
+            fontSize = 30.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onBackground,
+            textAlign = TextAlign.Center
         )
 
         Spacer(
-            modifier = Modifier.height(16.dp)
+            modifier = Modifier.height(8.dp)
+        )
+
+        Text(
+            text = "Login to continue your journey.",
+            modifier = Modifier.fillMaxWidth(),
+            fontSize = 14.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center
+        )
+
+        Spacer(
+            modifier = Modifier.height(32.dp)
         )
 
         OutlinedTextField(
@@ -73,14 +96,12 @@ fun LoginScreen(
             label = {
                 Text("Email")
             },
-            textStyle = LocalTextStyle.current.copy(
-                color = Color.Black
-            ),
-            singleLine = true
+            singleLine = true,
+            enabled = !isLoading
         )
 
         Spacer(
-            modifier = Modifier.height(12.dp)
+            modifier = Modifier.height(14.dp)
         )
 
         OutlinedTextField(
@@ -92,10 +113,8 @@ fun LoginScreen(
             label = {
                 Text("Password")
             },
-            textStyle = LocalTextStyle.current.copy(
-                color = Color.Black
-            ),
             singleLine = true,
+            enabled = !isLoading,
             visualTransformation = if (passwordVisible) {
                 VisualTransformation.None
             } else {
@@ -124,7 +143,7 @@ fun LoginScreen(
         )
 
         Spacer(
-            modifier = Modifier.height(20.dp)
+            modifier = Modifier.height(24.dp)
         )
 
         Button(
@@ -134,15 +153,23 @@ fun LoginScreen(
                     password
                 )
             },
-            modifier = Modifier.fillMaxWidth(),
-            enabled = !isLoading
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(52.dp),
+            enabled = !isLoading,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
+            )
         ) {
             Text(
                 text = if (isLoading) {
                     "Logging in..."
                 } else {
                     "Login"
-                }
+                },
+                fontSize = 16.sp,
+                fontWeight = FontWeight.SemiBold
             )
         }
 
@@ -152,11 +179,19 @@ fun LoginScreen(
 
         Button(
             onClick = onRegisterClick,
-            modifier = Modifier.fillMaxWidth(),
-            enabled = !isLoading
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(52.dp),
+            enabled = !isLoading,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+            )
         ) {
             Text(
-                text = "Create Account"
+                text = "Create Account",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.SemiBold
             )
         }
 
@@ -166,33 +201,45 @@ fun LoginScreen(
 
         Button(
             onClick = onGoogleSignInClick,
-            modifier = Modifier.fillMaxWidth(),
-            enabled = !isLoading
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(52.dp),
+            enabled = !isLoading,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         ) {
             Text(
-                text = "Continue with Google"
+                text = "Continue with Google",
+                fontSize = 15.sp,
+                fontWeight = FontWeight.SemiBold
             )
         }
 
         if (errorMessage != null) {
-
             Spacer(
-                modifier = Modifier.height(12.dp)
+                modifier = Modifier.height(16.dp)
             )
 
             Text(
-                text = errorMessage
+                text = errorMessage,
+                modifier = Modifier.fillMaxWidth(),
+                color = MaterialTheme.colorScheme.error,
+                textAlign = TextAlign.Center
             )
         }
 
         if (successMessage != null) {
-
             Spacer(
-                modifier = Modifier.height(12.dp)
+                modifier = Modifier.height(16.dp)
             )
 
             Text(
-                text = successMessage
+                text = successMessage,
+                modifier = Modifier.fillMaxWidth(),
+                color = MaterialTheme.colorScheme.primary,
+                textAlign = TextAlign.Center
             )
         }
     }

@@ -90,18 +90,30 @@ fun NavGraph() {
     val showBottomBar =
         currentRoute in bottomNavigationRoutes
 
+    LaunchedEffect(currentUser) {
+
+        if (
+            currentUser != null &&
+            currentRoute == "login"
+        ) {
+            navController.navigate("home") {
+
+                popUpTo("login") {
+                    inclusive = true
+                }
+
+                launchSingleTop = true
+            }
+        }
+    }
+
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
 
         NavHost(
             navController = navController,
-            startDestination =
-                if (currentUser != null) {
-                    "home"
-                } else {
-                    "login"
-                },
+            startDestination = "splash",
             modifier = Modifier.weight(1f)
         ) {
 
@@ -206,6 +218,12 @@ fun NavGraph() {
                             email = email,
                             password = password
                         )
+                    },
+                    onBackClick = {
+
+                        authViewModel.clearMessages()
+
+                        navController.popBackStack()
                     },
                     isLoading = isLoading,
                     errorMessage = errorMessage,
@@ -326,9 +344,7 @@ fun NavGraph() {
                 )
             }
 
-            composable(
-                "yearinpixels"
-            ) {
+            composable("yearinpixels") {
 
                 YearInPixelsScreen(
                     navController
@@ -383,9 +399,7 @@ fun NavGraph() {
                 )
             }
 
-            composable(
-                "edit/{habitId}"
-            ) { backStackEntry ->
+            composable("edit/{habitId}") { backStackEntry ->
 
                 val habitId =
                     backStackEntry
