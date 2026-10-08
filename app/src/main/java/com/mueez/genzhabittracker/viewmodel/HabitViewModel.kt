@@ -77,6 +77,7 @@ class HabitViewModel(
         onComplete: () -> Unit = {}
     ) {
         viewModelScope.launch {
+
             val existingCompletions =
                 habitRepository.getCompletionsForHabit(
                     completion.habitId
@@ -89,11 +90,36 @@ class HabitViewModel(
                 }
 
             if (!alreadyExists) {
-                habitRepository.saveCompletion(completion)
+
+                habitRepository.saveCompletion(
+                    completion
+                )
 
                 firestoreHabitCompletionRepository
                     .uploadCompletion(completion)
             }
+
+            onComplete()
+        }
+    }
+
+    fun deleteCompletionForDate(
+        habitId: Int,
+        date: String,
+        onComplete: () -> Unit = {}
+    ) {
+        viewModelScope.launch {
+
+            habitRepository.deleteCompletionForDate(
+                habitId = habitId,
+                date = date
+            )
+
+            firestoreHabitCompletionRepository
+                .deleteCompletion(
+                    habitId = habitId,
+                    completedDate = date
+                )
 
             onComplete()
         }
@@ -104,6 +130,7 @@ class HabitViewModel(
         onResult: (List<HabitCompletion>) -> Unit
     ) {
         viewModelScope.launch {
+
             val completions =
                 habitRepository.getCompletionsForHabit(
                     habitId
@@ -118,6 +145,17 @@ class HabitViewModel(
         onResult: (Int) -> Unit
     ) {
         viewModelScope.launch {
+
+            val habit =
+                habitRepository.getHabitById(
+                    habitId
+                )
+
+            if (habit == null) {
+                onResult(0)
+                return@launch
+            }
+
             val completions =
                 habitRepository.getCompletionsForHabit(
                     habitId
@@ -125,7 +163,8 @@ class HabitViewModel(
 
             val streak =
                 StreakCalculator.calculateCurrentStreak(
-                    completions
+                    completions = completions,
+                    frequency = habit.frequency
                 )
 
             onResult(streak)
@@ -136,6 +175,7 @@ class HabitViewModel(
         onComplete: () -> Unit = {}
     ) {
         viewModelScope.launch {
+
             val result =
                 firestoreHabitRepository.getHabits()
 
@@ -157,10 +197,13 @@ class HabitViewModel(
                         )
 
                     if (localHabit == null) {
+
                         habitRepository.insertHabit(
                             cloudHabit
                         )
+
                     } else {
+
                         habitRepository.updateHabit(
                             cloudHabit
                         )
@@ -170,6 +213,7 @@ class HabitViewModel(
                 localHabits.forEach { localHabit ->
 
                     if (localHabit.id !in cloudHabitIds) {
+
                         habitRepository.deleteHabit(
                             localHabit
                         )
@@ -185,6 +229,7 @@ class HabitViewModel(
         onComplete: () -> Unit = {}
     ) {
         viewModelScope.launch {
+
             val result =
                 firestoreHabitCompletionRepository
                     .getCompletions()
@@ -206,6 +251,7 @@ class HabitViewModel(
                         }
 
                     if (!alreadyExists) {
+
                         habitRepository.saveCompletion(
                             cloudCompletion
                         )

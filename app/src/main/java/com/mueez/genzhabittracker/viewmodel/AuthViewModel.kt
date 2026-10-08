@@ -3,6 +3,8 @@ package com.mueez.genzhabittracker.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.AuthCredential
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.auth.FirebaseUser
 import com.mueez.genzhabittracker.data.repository.AuthRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -92,8 +94,17 @@ class AuthViewModel(
 
             }.onFailure { exception ->
 
-                _errorMessage.value =
-                    exception.message ?: "Login failed."
+                _errorMessage.value = when (exception) {
+
+                    is FirebaseAuthInvalidCredentialsException,
+                    is FirebaseAuthInvalidUserException -> {
+                        "Incorrect email or password."
+                    }
+
+                    else -> {
+                        "Login failed. Please try again."
+                    }
+                }
             }
 
             _isLoading.value = false
@@ -135,7 +146,36 @@ class AuthViewModel(
     fun setErrorMessage(
         message: String
     ) {
-        _errorMessage.value = message
+        val friendlyMessage = when {
+            message.contains(
+                "cancelled",
+                ignoreCase = true
+            ) ||
+                    message.contains(
+                        "canceled",
+                        ignoreCase = true
+                    ) ||
+                    message.contains(
+                        "user cancelled",
+                        ignoreCase = true
+                    ) ||
+                    message.contains(
+                        "user canceled",
+                        ignoreCase = true
+                    ) ||
+                    message.contains(
+                        "selector",
+                        ignoreCase = true
+                    ) -> {
+                "Google Sign-In cancelled."
+            }
+
+            else -> {
+                message
+            }
+        }
+
+        _errorMessage.value = friendlyMessage
         _successMessage.value = null
         _isLoading.value = false
     }

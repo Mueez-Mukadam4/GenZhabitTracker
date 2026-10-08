@@ -40,9 +40,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.mueez.genzhabittracker.data.database.DatabaseProvider
 import com.mueez.genzhabittracker.data.model.Habit
+import com.mueez.genzhabittracker.data.model.HabitCompletion
 import com.mueez.genzhabittracker.data.repository.HabitRepository
 import com.mueez.genzhabittracker.viewmodel.HabitViewModel
 import com.mueez.genzhabittracker.viewmodel.HabitViewModelFactory
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun HabitScreen(
@@ -95,6 +99,12 @@ fun HabitScreen(
     LaunchedEffect(Unit) {
         loadHabits()
     }
+
+    val today =
+        SimpleDateFormat(
+            "yyyy-MM-dd",
+            Locale.getDefault()
+        ).format(Date())
 
     Column(
         modifier = Modifier
@@ -446,6 +456,32 @@ fun HabitScreen(
                                             .updateHabit(
                                                 updatedHabit
                                             )
+
+                                        if (checked) {
+
+                                            val completion =
+                                                HabitCompletion(
+                                                    habitId =
+                                                        habit.id,
+                                                    completedDate =
+                                                        today
+                                                )
+
+                                            habitViewModel
+                                                .saveCompletionIfNeeded(
+                                                    completion
+                                                )
+
+                                        } else {
+
+                                            habitViewModel
+                                                .deleteCompletionForDate(
+                                                    habitId =
+                                                        habit.id,
+                                                    date =
+                                                        today
+                                                )
+                                        }
                                     }
                                 )
 

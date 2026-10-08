@@ -38,6 +38,16 @@ class HabitRepository(
         )
     }
 
+    suspend fun deleteCompletionForDate(
+        habitId: Int,
+        date: String
+    ) {
+        habitCompletionDao.deleteCompletionForDate(
+            habitId,
+            date
+        )
+    }
+
     suspend fun getCompletionsForHabit(
         habitId: Int
     ): List<HabitCompletion> {
