@@ -47,8 +47,19 @@ class HabitViewModel(
         onComplete: () -> Unit = {}
     ) {
         viewModelScope.launch {
-            habitRepository.deleteHabit(habit)
-            firestoreHabitRepository.deleteHabit(habit.id)
+
+            habitRepository.deleteCompletionsForHabit(
+                habit.id
+            )
+
+            habitRepository.deleteHabit(
+                habit
+            )
+
+            firestoreHabitRepository.deleteHabit(
+                habit.id
+            )
+
             onComplete()
         }
     }
@@ -57,6 +68,7 @@ class HabitViewModel(
         onResult: (List<Habit>) -> Unit
     ) {
         viewModelScope.launch {
+
             val habits =
                 habitRepository.getAllHabits()
 
@@ -69,6 +81,7 @@ class HabitViewModel(
         onResult: (Habit?) -> Unit
     ) {
         viewModelScope.launch {
+
             val habit =
                 habitRepository.getHabitById(
                     habitId
@@ -221,6 +234,10 @@ class HabitViewModel(
                 localHabits.forEach { localHabit ->
 
                     if (localHabit.id !in cloudHabitIds) {
+
+                        habitRepository.deleteCompletionsForHabit(
+                            localHabit.id
+                        )
 
                         habitRepository.deleteHabit(
                             localHabit
