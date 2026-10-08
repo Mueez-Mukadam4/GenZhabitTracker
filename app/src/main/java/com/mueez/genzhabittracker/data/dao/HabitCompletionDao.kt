@@ -41,4 +41,17 @@ interface HabitCompletionDao {
         habitId: Int,
         date: String
     )
+
+    @Query(
+        "DELETE FROM habit_completions"
+    )
+    suspend fun deleteAllCompletions()
+
+    @Query(
+        "DELETE FROM habit_completions " +
+                "WHERE habitId = :habitId"
+    )
+    suspend fun deleteCompletionsForHabit(
+        habitId: Int
+    )
 }

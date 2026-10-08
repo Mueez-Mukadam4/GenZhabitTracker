@@ -48,6 +48,18 @@ class HabitRepository(
         )
     }
 
+    suspend fun deleteAllCompletions() {
+        habitCompletionDao.deleteAllCompletions()
+    }
+
+    suspend fun deleteCompletionsForHabit(
+        habitId: Int
+    ) {
+        habitCompletionDao.deleteCompletionsForHabit(
+            habitId
+        )
+    }
+
     suspend fun getCompletionsForHabit(
         habitId: Int
     ): List<HabitCompletion> {

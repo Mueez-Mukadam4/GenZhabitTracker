@@ -57,7 +57,9 @@ class HabitViewModel(
         onResult: (List<Habit>) -> Unit
     ) {
         viewModelScope.launch {
-            val habits = habitRepository.getAllHabits()
+            val habits =
+                habitRepository.getAllHabits()
+
             onResult(habits)
         }
     }
@@ -67,7 +69,11 @@ class HabitViewModel(
         onResult: (Habit?) -> Unit
     ) {
         viewModelScope.launch {
-            val habit = habitRepository.getHabitById(habitId)
+            val habit =
+                habitRepository.getHabitById(
+                    habitId
+                )
+
             onResult(habit)
         }
     }
@@ -96,7 +102,9 @@ class HabitViewModel(
                 )
 
                 firestoreHabitCompletionRepository
-                    .uploadCompletion(completion)
+                    .uploadCompletion(
+                        completion
+                    )
             }
 
             onComplete()
@@ -236,26 +244,14 @@ class HabitViewModel(
 
             result.onSuccess { cloudCompletions ->
 
+                habitRepository
+                    .deleteAllCompletions()
+
                 cloudCompletions.forEach { cloudCompletion ->
 
-                    val localCompletions =
-                        habitRepository
-                            .getCompletionsForHabit(
-                                cloudCompletion.habitId
-                            )
-
-                    val alreadyExists =
-                        localCompletions.any { localCompletion ->
-                            localCompletion.completedDate ==
-                                    cloudCompletion.completedDate
-                        }
-
-                    if (!alreadyExists) {
-
-                        habitRepository.saveCompletion(
-                            cloudCompletion
-                        )
-                    }
+                    habitRepository.saveCompletion(
+                        cloudCompletion
+                    )
                 }
             }
 
