@@ -14,6 +14,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.MenuBook
+import androidx.compose.material.icons.filled.PrivacyTip
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -32,10 +35,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.google.firebase.auth.FirebaseAuth
 import com.mueez.genzhabittracker.utils.DarkModePreferences
@@ -88,9 +91,7 @@ fun SettingsScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .verticalScroll(
-                rememberScrollState()
-            )
+            .verticalScroll(rememberScrollState())
             .padding(
                 horizontal = 20.dp,
                 vertical = 16.dp
@@ -108,9 +109,7 @@ fun SettingsScreen(
             )
         }
 
-        Spacer(
-            modifier = Modifier.height(8.dp)
-        )
+        Spacer(modifier = Modifier.height(8.dp))
 
         Text(
             text = "Settings",
@@ -119,9 +118,7 @@ fun SettingsScreen(
             color = MaterialTheme.colorScheme.onBackground
         )
 
-        Spacer(
-            modifier = Modifier.height(4.dp)
-        )
+        Spacer(modifier = Modifier.height(4.dp))
 
         Text(
             text = "Manage your account and app preferences.",
@@ -129,22 +126,18 @@ fun SettingsScreen(
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
-        Spacer(
-            modifier = Modifier.height(24.dp)
-        )
+        Spacer(modifier = Modifier.height(24.dp))
 
+        // ACCOUNT
         SettingsSectionTitle("Account")
 
-        Spacer(
-            modifier = Modifier.height(10.dp)
-        )
+        Spacer(modifier = Modifier.height(10.dp))
 
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(20.dp),
             colors = CardDefaults.cardColors(
-                containerColor =
-                    MaterialTheme.colorScheme.surfaceVariant
+                containerColor = MaterialTheme.colorScheme.surfaceVariant
             )
         ) {
             Column(
@@ -157,45 +150,36 @@ fun SettingsScreen(
                     color = MaterialTheme.colorScheme.onSurface
                 )
 
-                Spacer(
-                    modifier = Modifier.height(4.dp)
-                )
+                Spacer(modifier = Modifier.height(4.dp))
 
                 Text(
                     text = userEmail,
                     fontSize = 14.sp,
-                    color =
-                        MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
 
-        Spacer(
-            modifier = Modifier.height(24.dp)
-        )
+        Spacer(modifier = Modifier.height(24.dp))
 
+        // APPEARANCE
         SettingsSectionTitle("Appearance")
 
-        Spacer(
-            modifier = Modifier.height(10.dp)
-        )
+        Spacer(modifier = Modifier.height(10.dp))
 
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(20.dp),
             colors = CardDefaults.cardColors(
-                containerColor =
-                    MaterialTheme.colorScheme.surfaceVariant
+                containerColor = MaterialTheme.colorScheme.surfaceVariant
             )
         ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(18.dp),
-                horizontalArrangement =
-                    Arrangement.SpaceBetween,
-                verticalAlignment =
-                    Alignment.CenterVertically
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Column(
                     modifier = Modifier.weight(1f)
@@ -204,19 +188,15 @@ fun SettingsScreen(
                         text = "Dark Mode",
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Medium,
-                        color =
-                            MaterialTheme.colorScheme.onSurface
+                        color = MaterialTheme.colorScheme.onSurface
                     )
 
-                    Spacer(
-                        modifier = Modifier.height(4.dp)
-                    )
+                    Spacer(modifier = Modifier.height(4.dp))
 
                     Text(
                         text = "Use a darker color theme.",
                         fontSize = 13.sp,
-                        color =
-                            MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
 
@@ -226,43 +206,36 @@ fun SettingsScreen(
                         darkModeEnabled = enabled
 
                         coroutineScope.launch {
-                            DarkModePreferences
-                                .setDarkModeEnabled(
-                                    context,
-                                    enabled
-                                )
+                            DarkModePreferences.setDarkModeEnabled(
+                                context,
+                                enabled
+                            )
                         }
                     }
                 )
             }
         }
 
-        Spacer(
-            modifier = Modifier.height(24.dp)
-        )
+        Spacer(modifier = Modifier.height(24.dp))
 
+        // NOTIFICATIONS
         SettingsSectionTitle("Notifications")
 
-        Spacer(
-            modifier = Modifier.height(10.dp)
-        )
+        Spacer(modifier = Modifier.height(10.dp))
 
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(20.dp),
             colors = CardDefaults.cardColors(
-                containerColor =
-                    MaterialTheme.colorScheme.surfaceVariant
+                containerColor = MaterialTheme.colorScheme.surfaceVariant
             )
         ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(18.dp),
-                horizontalArrangement =
-                    Arrangement.SpaceBetween,
-                verticalAlignment =
-                    Alignment.CenterVertically
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Column(
                     modifier = Modifier.weight(1f)
@@ -271,20 +244,15 @@ fun SettingsScreen(
                         text = "Daily habit reminders",
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Medium,
-                        color =
-                            MaterialTheme.colorScheme.onSurface
+                        color = MaterialTheme.colorScheme.onSurface
                     )
 
-                    Spacer(
-                        modifier = Modifier.height(4.dp)
-                    )
+                    Spacer(modifier = Modifier.height(4.dp))
 
                     Text(
-                        text =
-                            "Receive a daily reminder at 8:00 PM.",
+                        text = "Receive a daily reminder at 8:00 PM.",
                         fontSize = 13.sp,
-                        color =
-                            MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
 
@@ -294,92 +262,94 @@ fun SettingsScreen(
                         notificationsEnabled = enabled
 
                         if (enabled) {
-                            NotificationScheduler
-                                .scheduleDailyReminder(
-                                    context
-                                )
+                            NotificationScheduler.scheduleDailyReminder(
+                                context
+                            )
                         } else {
-                            NotificationScheduler
-                                .cancelDailyReminder(
-                                    context
-                                )
+                            NotificationScheduler.cancelDailyReminder(
+                                context
+                            )
                         }
 
                         coroutineScope.launch {
-                            NotificationPreferences
-                                .setNotificationsEnabled(
-                                    context,
-                                    enabled
-                                )
+                            NotificationPreferences.setNotificationsEnabled(
+                                context,
+                                enabled
+                            )
                         }
                     }
                 )
             }
         }
 
-        Spacer(
-            modifier = Modifier.height(24.dp)
-        )
+        Spacer(modifier = Modifier.height(24.dp))
 
-        SettingsSectionTitle("Privacy")
+        // POLICIES AND INFORMATION
+        SettingsSectionTitle("Policies & Information")
 
-        Spacer(
-            modifier = Modifier.height(10.dp)
-        )
+        Spacer(modifier = Modifier.height(10.dp))
 
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable {
-                    navController.navigate("privacy")
-                },
-            shape = RoundedCornerShape(20.dp),
-            colors = CardDefaults.cardColors(
-                containerColor =
-                    MaterialTheme.colorScheme.surfaceVariant
-            )
-        ) {
-            Column(
-                modifier = Modifier.padding(18.dp)
-            ) {
-                Text(
-                    text = "Privacy",
-                    fontSize = 17.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color =
-                        MaterialTheme.colorScheme.onSurface
+        PolicyNavigationCard(
+            title = "Privacy Policy",
+            description = "Learn how your information is handled.",
+            icon = {
+                Icon(
+                    imageVector = Icons.Default.PrivacyTip,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary
                 )
-
-                Spacer(
-                    modifier = Modifier.height(6.dp)
-                )
-
-                Text(
-                    text =
-                        "Your habits and progress are stored locally and synced securely when cloud sync is available.",
-                    fontSize = 14.sp,
-                    color =
-                        MaterialTheme.colorScheme.onSurfaceVariant
-                )
+            },
+            onClick = {
+                navController.navigate("privacy")
             }
-        }
-
-        Spacer(
-            modifier = Modifier.height(24.dp)
         )
 
+        Spacer(modifier = Modifier.height(12.dp))
+
+        PolicyNavigationCard(
+            title = "Terms & Conditions",
+            description = "Review the terms for using the app.",
+            icon = {
+                Icon(
+                    imageVector = Icons.Default.Description,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            },
+            onClick = {
+                navController.navigate("terms")
+            }
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        PolicyNavigationCard(
+            title = "App Guidelines",
+            description = "Tips for using GenZhabit Tracker effectively.",
+            icon = {
+                Icon(
+                    imageVector = Icons.Default.MenuBook,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            },
+            onClick = {
+                navController.navigate("guidelines")
+            }
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // ABOUT DEVELOPER
         SettingsSectionTitle("About Developer")
 
-        Spacer(
-            modifier = Modifier.height(10.dp)
-        )
+        Spacer(modifier = Modifier.height(10.dp))
 
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(20.dp),
             colors = CardDefaults.cardColors(
-                containerColor =
-                    MaterialTheme.colorScheme.surfaceVariant
+                containerColor = MaterialTheme.colorScheme.surfaceVariant
             )
         ) {
             Column(
@@ -389,68 +359,50 @@ fun SettingsScreen(
                     text = "Mueez Mukadam",
                     fontSize = 19.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color =
-                        MaterialTheme.colorScheme.onSurface
+                    color = MaterialTheme.colorScheme.onSurface
                 )
 
-                Spacer(
-                    modifier = Modifier.height(4.dp)
-                )
+                Spacer(modifier = Modifier.height(4.dp))
 
                 Text(
                     text = "Android Developer",
                     fontSize = 14.sp,
-                    color =
-                        MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.primary
                 )
 
-                Spacer(
-                    modifier = Modifier.height(12.dp)
-                )
+                Spacer(modifier = Modifier.height(12.dp))
 
                 Text(
-                    text =
-                        "I am a Computer Science graduate focused on native Android development with Kotlin and Jetpack Compose. I enjoy building practical, privacy-focused mobile applications and continuously improving my skills through real-world projects.",
+                    text = "I am a Computer Science graduate focused on native Android development with Kotlin and Jetpack Compose. I enjoy building practical, privacy-focused mobile applications and continuously improving my skills through real-world projects.",
                     fontSize = 14.sp,
-                    color =
-                        MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
-                Spacer(
-                    modifier = Modifier.height(12.dp)
-                )
+                Spacer(modifier = Modifier.height(12.dp))
 
                 Text(
-                    text =
-                        "GenZhabit Tracker is a privacy-first habit tracking project built to encourage consistency, progress, and personal growth.",
+                    text = "GenZhabit Tracker is a privacy-first habit tracking project built to encourage consistency, progress, and personal growth.",
                     fontSize = 14.sp,
-                    color =
-                        MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
-                Spacer(
-                    modifier = Modifier.height(12.dp)
-                )
+                Spacer(modifier = Modifier.height(12.dp))
 
                 HorizontalDivider()
 
-                Spacer(
-                    modifier = Modifier.height(12.dp)
-                )
+                Spacer(modifier = Modifier.height(12.dp))
 
                 Text(
                     text = "Version 1.0",
                     fontSize = 13.sp,
-                    color =
-                        MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
 
-        Spacer(
-            modifier = Modifier.height(24.dp)
-        )
+        Spacer(modifier = Modifier.height(24.dp))
 
+        // LOGOUT
         Button(
             onClick = {
                 onLogoutClick()
@@ -458,14 +410,57 @@ fun SettingsScreen(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(14.dp)
         ) {
-            Text(
-                text = "Logout"
-            )
+            Text(text = "Logout")
         }
 
-        Spacer(
-            modifier = Modifier.height(20.dp)
+        Spacer(modifier = Modifier.height(20.dp))
+    }
+}
+
+@Composable
+private fun PolicyNavigationCard(
+    title: String,
+    description: String,
+    icon: @Composable () -> Unit,
+    onClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
         )
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(18.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(14.dp)
+        ) {
+            icon()
+
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = title,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Text(
+                    text = description,
+                    fontSize = 13.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
     }
 }
 

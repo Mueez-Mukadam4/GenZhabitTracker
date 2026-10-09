@@ -32,8 +32,10 @@ import com.mueez.genzhabittracker.presentation.screens.home.HomeScreen
 import com.mueez.genzhabittracker.presentation.screens.more.MoreScreen
 import com.mueez.genzhabittracker.presentation.screens.onboarding.OnboardingScreen
 import com.mueez.genzhabittracker.presentation.screens.quotes.QuotesScreen
+import com.mueez.genzhabittracker.presentation.screens.settings.GuidelinesScreen
 import com.mueez.genzhabittracker.presentation.screens.settings.PrivacyScreen
 import com.mueez.genzhabittracker.presentation.screens.settings.SettingsScreen
+import com.mueez.genzhabittracker.presentation.screens.settings.TermsScreen
 import com.mueez.genzhabittracker.presentation.screens.splash.SplashScreen
 import com.mueez.genzhabittracker.presentation.screens.todo.TodoScreen
 import com.mueez.genzhabittracker.presentation.screens.yearinpixels.YearInPixelsScreen
@@ -120,24 +122,16 @@ fun NavGraph() {
             composable("login") {
 
                 val isLoading by
-                authViewModel
-                    .isLoading
-                    .collectAsState()
+                authViewModel.isLoading.collectAsState()
 
                 val errorMessage by
-                authViewModel
-                    .errorMessage
-                    .collectAsState()
+                authViewModel.errorMessage.collectAsState()
 
                 val successMessage by
-                authViewModel
-                    .successMessage
-                    .collectAsState()
+                authViewModel.successMessage.collectAsState()
 
                 LoginScreen(
-                    onLoginClick = {
-                            email,
-                            password ->
+                    onLoginClick = { email, password ->
 
                         authViewModel.login(
                             email = email,
@@ -148,9 +142,7 @@ fun NavGraph() {
 
                         authViewModel.clearMessages()
 
-                        navController.navigate(
-                            "register"
-                        )
+                        navController.navigate("register")
                     },
                     onGoogleSignInClick = {
 
@@ -162,27 +154,20 @@ fun NavGraph() {
 
                                 val credential =
                                     googleSignInHelper
-                                        .getGoogleCredential(
-                                            context
-                                        )
+                                        .getGoogleCredential(context)
 
-                                authViewModel
-                                    .signInWithGoogle(
-                                        credential
-                                    )
+                                authViewModel.signInWithGoogle(
+                                    credential
+                                )
 
-                            } catch (
-                                exception: Exception
-                            ) {
+                            } catch (exception: Exception) {
 
-                                authViewModel
-                                    .clearMessages()
+                                authViewModel.clearMessages()
 
-                                authViewModel
-                                    .setErrorMessage(
-                                        exception.message
-                                            ?: "Google Sign-In failed."
-                                    )
+                                authViewModel.setErrorMessage(
+                                    exception.message
+                                        ?: "Google Sign-In failed."
+                                )
                             }
                         }
                     },
@@ -195,24 +180,16 @@ fun NavGraph() {
             composable("register") {
 
                 val isLoading by
-                authViewModel
-                    .isLoading
-                    .collectAsState()
+                authViewModel.isLoading.collectAsState()
 
                 val errorMessage by
-                authViewModel
-                    .errorMessage
-                    .collectAsState()
+                authViewModel.errorMessage.collectAsState()
 
                 val successMessage by
-                authViewModel
-                    .successMessage
-                    .collectAsState()
+                authViewModel.successMessage.collectAsState()
 
                 RegisterScreen(
-                    onRegisterClick = {
-                            email,
-                            password ->
+                    onRegisterClick = { email, password ->
 
                         authViewModel.register(
                             email = email,
@@ -232,17 +209,11 @@ fun NavGraph() {
             }
 
             composable("splash") {
-
-                SplashScreen(
-                    navController
-                )
+                SplashScreen(navController)
             }
 
             composable("onboarding") {
-
-                OnboardingScreen(
-                    navController
-                )
+                OnboardingScreen(navController)
             }
 
             composable("home") {
@@ -253,9 +224,7 @@ fun NavGraph() {
 
                         authViewModel.logout()
 
-                        navController.navigate(
-                            "login"
-                        ) {
+                        navController.navigate("login") {
 
                             popUpTo("home") {
                                 inclusive = true
@@ -266,23 +235,16 @@ fun NavGraph() {
             }
 
             composable("habit") {
-
-                HabitScreen(
-                    navController
-                )
+                HabitScreen(navController)
             }
 
             composable("calendar") {
 
                 val habitDao =
-                    DatabaseProvider
-                        .database
-                        .habitDao()
+                    DatabaseProvider.database.habitDao()
 
                 val habitCompletionDao =
-                    DatabaseProvider
-                        .database
-                        .habitCompletionDao()
+                    DatabaseProvider.database.habitCompletionDao()
 
                 val habitRepository =
                     HabitRepository(
@@ -291,50 +253,34 @@ fun NavGraph() {
                     )
 
                 val factory =
-                    HabitViewModelFactory(
-                        habitRepository
-                    )
+                    HabitViewModelFactory(habitRepository)
 
-                val habitViewModel:
-                        HabitViewModel =
-                    viewModel(
-                        factory = factory
-                    )
+                val habitViewModel: HabitViewModel =
+                    viewModel(factory = factory)
 
                 var habits by remember {
-                    mutableStateOf<List<Habit>>(
-                        emptyList()
-                    )
+                    mutableStateOf<List<Habit>>(emptyList())
                 }
 
                 var completions by remember {
-                    mutableStateOf<
-                            List<HabitCompletion>
-                            >(
-                        emptyList()
-                    )
+                    mutableStateOf<List<HabitCompletion>>(emptyList())
                 }
 
                 LaunchedEffect(Unit) {
 
-                    habitViewModel
-                        .getAllHabits { result ->
+                    habitViewModel.getAllHabits { result ->
 
-                            habits = result
+                        habits = result
 
-                            result.forEach { habit ->
+                        result.forEach { habit ->
 
-                                habitViewModel
-                                    .getCompletionsForHabit(
-                                        habit.id
-                                    ) { result ->
+                            habitViewModel
+                                .getCompletionsForHabit(habit.id) { result ->
 
-                                        completions =
-                                            completions +
-                                                    result
-                                    }
-                            }
+                                    completions = completions + result
+                                }
                         }
+                    }
                 }
 
                 CalendarScreen(
@@ -345,24 +291,15 @@ fun NavGraph() {
             }
 
             composable("yearinpixels") {
-
-                YearInPixelsScreen(
-                    navController
-                )
+                YearInPixelsScreen(navController)
             }
 
             composable("todo") {
-
-                TodoScreen(
-                    navController
-                )
+                TodoScreen(navController)
             }
 
             composable("quotes") {
-
-                QuotesScreen(
-                    navController
-                )
+                QuotesScreen(navController)
             }
 
             composable("settings") {
@@ -373,9 +310,7 @@ fun NavGraph() {
 
                         authViewModel.logout()
 
-                        navController.navigate(
-                            "login"
-                        ) {
+                        navController.navigate("login") {
 
                             popUpTo("home") {
                                 inclusive = true
@@ -386,45 +321,41 @@ fun NavGraph() {
             }
 
             composable("privacy") {
+                PrivacyScreen(navController)
+            }
 
-                PrivacyScreen(
-                    navController
-                )
+            // NEW: Terms & Conditions
+            composable("terms") {
+                TermsScreen(navController)
+            }
+
+            // NEW: App Guidelines
+            composable("guidelines") {
+                GuidelinesScreen(navController)
             }
 
             composable("more") {
-
-                MoreScreen(
-                    navController
-                )
+                MoreScreen(navController)
             }
 
             composable("edit/{habitId}") { backStackEntry ->
 
                 val habitId =
-                    backStackEntry
-                        .arguments
+                    backStackEntry.arguments
                         ?.getString("habitId")
                         ?.toIntOrNull()
 
-                var selectedHabit by
-                remember {
-                    mutableStateOf<Habit?>(
-                        null
-                    )
+                var selectedHabit by remember {
+                    mutableStateOf<Habit?>(null)
                 }
 
                 if (habitId != null) {
 
                     val habitDao =
-                        DatabaseProvider
-                            .database
-                            .habitDao()
+                        DatabaseProvider.database.habitDao()
 
                     val habitCompletionDao =
-                        DatabaseProvider
-                            .database
-                            .habitCompletionDao()
+                        DatabaseProvider.database.habitCompletionDao()
 
                     val habitRepository =
                         HabitRepository(
@@ -433,35 +364,23 @@ fun NavGraph() {
                         )
 
                     val factory =
-                        HabitViewModelFactory(
-                            habitRepository
-                        )
+                        HabitViewModelFactory(habitRepository)
 
-                    val habitViewModel:
-                            HabitViewModel =
-                        viewModel(
-                            factory = factory
-                        )
+                    val habitViewModel: HabitViewModel =
+                        viewModel(factory = factory)
 
-                    LaunchedEffect(
-                        habitId
-                    ) {
+                    LaunchedEffect(habitId) {
 
-                        habitViewModel
-                            .getHabitById(
-                                habitId
-                            ) { habit ->
+                        habitViewModel.getHabitById(habitId) { habit ->
 
-                                selectedHabit =
-                                    habit
-                            }
+                            selectedHabit = habit
+                        }
                     }
 
                     selectedHabit?.let { habit ->
 
                         EditHabitScreen(
-                            navController =
-                                navController,
+                            navController = navController,
                             habit = habit
                         )
                     }
@@ -472,31 +391,25 @@ fun NavGraph() {
         if (showBottomBar) {
 
             GenZBottomNavigationBar(
-                currentRoute =
-                    currentRoute,
+                currentRoute = currentRoute,
                 onItemClick = { route ->
 
                     if (route == "more") {
 
-                        navController.navigate(
-                            "more"
-                        ) {
+                        navController.navigate("more") {
 
                             launchSingleTop = true
                         }
 
                     } else {
 
-                        navController.navigate(
-                            route
-                        ) {
+                        navController.navigate(route) {
 
                             popUpTo("home") {
                                 saveState = true
                             }
 
                             launchSingleTop = true
-
                             restoreState = true
                         }
                     }
