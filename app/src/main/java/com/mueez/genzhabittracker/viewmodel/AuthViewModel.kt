@@ -43,30 +43,27 @@ class AuthViewModel(
         password: String
     ) {
         viewModelScope.launch {
-
             _isLoading.value = true
             _errorMessage.value = null
             _successMessage.value = null
 
-            val result = authRepository.registerWithEmail(
-                email,
-                password
-            )
+            try {
+                val result = authRepository.registerWithEmail(
+                    email,
+                    password
+                )
 
-            result.onSuccess { user ->
-
-                _currentUser.value = user
-
-                _successMessage.value =
-                    "Account created successfully."
-
-            }.onFailure { exception ->
-
-                _errorMessage.value =
-                    exception.message ?: "Registration failed."
+                result.onSuccess { user ->
+                    _currentUser.value = user
+                    _successMessage.value =
+                        "Account created successfully."
+                }.onFailure { exception ->
+                    _errorMessage.value =
+                        exception.message ?: "Registration failed."
+                }
+            } finally {
+                _isLoading.value = false
             }
-
-            _isLoading.value = false
         }
     }
 
@@ -75,39 +72,32 @@ class AuthViewModel(
         password: String
     ) {
         viewModelScope.launch {
-
             _isLoading.value = true
             _errorMessage.value = null
             _successMessage.value = null
 
-            val result = authRepository.loginWithEmail(
-                email,
-                password
-            )
+            try {
+                val result = authRepository.loginWithEmail(
+                    email,
+                    password
+                )
 
-            result.onSuccess { user ->
+                result.onSuccess { user ->
+                    _currentUser.value = user
+                    _successMessage.value = "Login successful."
+                }.onFailure { exception ->
+                    _errorMessage.value = when (exception) {
+                        is FirebaseAuthInvalidCredentialsException,
+                        is FirebaseAuthInvalidUserException ->
+                            "Incorrect email or password."
 
-                _currentUser.value = user
-
-                _successMessage.value =
-                    "Login successful."
-
-            }.onFailure { exception ->
-
-                _errorMessage.value = when (exception) {
-
-                    is FirebaseAuthInvalidCredentialsException,
-                    is FirebaseAuthInvalidUserException -> {
-                        "Incorrect email or password."
-                    }
-
-                    else -> {
-                        "Login failed. Please try again."
+                        else ->
+                            "Login failed. Please try again."
                     }
                 }
+            } finally {
+                _isLoading.value = false
             }
-
-            _isLoading.value = false
         }
     }
 
@@ -115,31 +105,72 @@ class AuthViewModel(
         credential: AuthCredential
     ) {
         viewModelScope.launch {
-
             _isLoading.value = true
             _errorMessage.value = null
             _successMessage.value = null
 
-            val result =
-                authRepository.signInWithGoogleCredential(
-                    credential
-                )
+            try {
+                val result =
+                    authRepository.signInWithGoogleCredential(
+                        credential
+                    )
 
-            result.onSuccess { user ->
-
-                _currentUser.value = user
-
-                _successMessage.value =
-                    "Google Sign-In successful."
-
-            }.onFailure { exception ->
-
-                _errorMessage.value =
-                    exception.message
-                        ?: "Google Sign-In failed."
+                result.onSuccess { user ->
+                    _currentUser.value = user
+                    _successMessage.value =
+                        "Google Sign-In successful."
+                }.onFailure { exception ->
+                    _errorMessage.value =
+                        exception.message ?: "Google Sign-In failed."
+                }
+            } finally {
+                _isLoading.value = false
             }
+        }
+    }
 
-            _isLoading.value = false
+    /**
+     * Updates the signed-in user's Firebase display name.
+     */
+    fun updateDisplayName(
+        displayName: String
+    ) {
+        val trimmedName = displayName.trim()
+
+        if (trimmedName.isBlank()) {
+            _errorMessage.value = "Please enter your name."
+            _successMessage.value = null
+            return
+        }
+
+        if (trimmedName.length > 50) {
+            _errorMessage.value =
+                "Name must be 50 characters or fewer."
+            _successMessage.value = null
+            return
+        }
+
+        viewModelScope.launch {
+            _isLoading.value = true
+            _errorMessage.value = null
+            _successMessage.value = null
+
+            try {
+                val result =
+                    authRepository.updateDisplayName(trimmedName)
+
+                result.onSuccess { updatedUser ->
+                    _currentUser.value = updatedUser
+                    _successMessage.value =
+                        "Profile updated successfully."
+                }.onFailure { exception ->
+                    _errorMessage.value =
+                        exception.message
+                            ?: "Unable to update your profile."
+                }
+            } finally {
+                _isLoading.value = false
+            }
         }
     }
 
@@ -147,32 +178,15 @@ class AuthViewModel(
         message: String
     ) {
         val friendlyMessage = when {
-            message.contains(
-                "cancelled",
-                ignoreCase = true
-            ) ||
-                    message.contains(
-                        "canceled",
-                        ignoreCase = true
-                    ) ||
-                    message.contains(
-                        "user cancelled",
-                        ignoreCase = true
-                    ) ||
-                    message.contains(
-                        "user canceled",
-                        ignoreCase = true
-                    ) ||
-                    message.contains(
-                        "selector",
-                        ignoreCase = true
-                    ) -> {
+            message.contains("cancelled", ignoreCase = true) ||
+                    message.contains("canceled", ignoreCase = true) ||
+                    message.contains("user cancelled", ignoreCase = true) ||
+                    message.contains("user canceled", ignoreCase = true) ||
+                    message.contains("selector", ignoreCase = true) -> {
                 "Google Sign-In cancelled."
             }
 
-            else -> {
-                message
-            }
+            else -> message
         }
 
         _errorMessage.value = friendlyMessage
@@ -181,21 +195,15 @@ class AuthViewModel(
     }
 
     fun logout() {
-
         authRepository.logout()
 
         _currentUser.value = null
-
         _errorMessage.value = null
-
-        _successMessage.value =
-            "Logged out successfully."
+        _successMessage.value = "Logged out successfully."
     }
 
     fun clearMessages() {
-
         _errorMessage.value = null
-
         _successMessage.value = null
     }
 }

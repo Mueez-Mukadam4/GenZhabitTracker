@@ -3,6 +3,7 @@ package com.mueez.genzhabittracker.data.repository
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.UserProfileChangeRequest
 import kotlinx.coroutines.tasks.await
 
 class AuthRepository {
@@ -10,19 +11,13 @@ class AuthRepository {
     private val firebaseAuth: FirebaseAuth =
         FirebaseAuth.getInstance()
 
-
-
     fun getCurrentUser(): FirebaseUser? {
         return firebaseAuth.currentUser
     }
 
-
-
     fun isUserLoggedIn(): Boolean {
         return firebaseAuth.currentUser != null
     }
-
-
 
     suspend fun registerWithEmail(
         email: String,
@@ -30,7 +25,6 @@ class AuthRepository {
     ): Result<FirebaseUser> {
 
         return try {
-
             val result = firebaseAuth
                 .createUserWithEmailAndPassword(
                     email,
@@ -47,14 +41,10 @@ class AuthRepository {
                     Exception("Registration failed. User is null.")
                 )
             }
-
         } catch (e: Exception) {
-
             Result.failure(e)
         }
     }
-
-
 
     suspend fun loginWithEmail(
         email: String,
@@ -62,7 +52,6 @@ class AuthRepository {
     ): Result<FirebaseUser> {
 
         return try {
-
             val result = firebaseAuth
                 .signInWithEmailAndPassword(
                     email,
@@ -79,21 +68,16 @@ class AuthRepository {
                     Exception("Login failed. User is null.")
                 )
             }
-
         } catch (e: Exception) {
-
             Result.failure(e)
         }
     }
-
-
 
     suspend fun signInWithGoogleCredential(
         credential: AuthCredential
     ): Result<FirebaseUser> {
 
         return try {
-
             val result = firebaseAuth
                 .signInWithCredential(credential)
                 .await()
@@ -107,14 +91,38 @@ class AuthRepository {
                     Exception("Google Sign-In failed. User is null.")
                 )
             }
-
         } catch (e: Exception) {
-
             Result.failure(e)
         }
     }
 
+    suspend fun updateDisplayName(
+        displayName: String
+    ): Result<FirebaseUser> {
 
+        return try {
+            val user = firebaseAuth.currentUser
+                ?: throw Exception("Please sign in to update your profile.")
+
+            val profileUpdates =
+                UserProfileChangeRequest.Builder()
+                    .setDisplayName(displayName.trim())
+                    .build()
+
+            user.updateProfile(profileUpdates).await()
+
+
+            user.reload().await()
+
+            val updatedUser = firebaseAuth.currentUser
+                ?: throw Exception("Unable to retrieve your updated profile.")
+
+            Result.success(updatedUser)
+
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 
     fun logout() {
         firebaseAuth.signOut()

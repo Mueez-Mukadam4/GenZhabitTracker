@@ -31,6 +31,8 @@ import com.mueez.genzhabittracker.presentation.screens.habit.HabitScreen
 import com.mueez.genzhabittracker.presentation.screens.home.HomeScreen
 import com.mueez.genzhabittracker.presentation.screens.more.MoreScreen
 import com.mueez.genzhabittracker.presentation.screens.onboarding.OnboardingScreen
+import com.mueez.genzhabittracker.presentation.screens.profile.EditProfileScreen
+import com.mueez.genzhabittracker.presentation.screens.profile.ProfileScreen
 import com.mueez.genzhabittracker.presentation.screens.quotes.QuotesScreen
 import com.mueez.genzhabittracker.presentation.screens.settings.GuidelinesScreen
 import com.mueez.genzhabittracker.presentation.screens.settings.PrivacyScreen
@@ -50,37 +52,27 @@ fun NavGraph() {
 
     val navController = rememberNavController()
 
-    val context =
-        androidx.compose.ui.platform.LocalContext.current
+    val context = androidx.compose.ui.platform.LocalContext.current
 
-    val coroutineScope =
-        rememberCoroutineScope()
+    val coroutineScope = rememberCoroutineScope()
 
-    val googleSignInHelper =
-        remember {
-            GoogleSignInHelper()
-        }
+    val googleSignInHelper = remember {
+        GoogleSignInHelper()
+    }
 
-    val authRepository =
-        remember {
-            AuthRepository()
-        }
+    val authRepository = remember {
+        AuthRepository()
+    }
 
-    val authViewModel: AuthViewModel =
-        viewModel(
-            factory = AuthViewModelFactory(
-                authRepository
-            )
-        )
+    val authViewModel: AuthViewModel = viewModel(
+        factory = AuthViewModelFactory(authRepository)
+    )
 
-    val currentUser by
-    authViewModel.currentUser.collectAsState()
+    val currentUser by authViewModel.currentUser.collectAsState()
 
-    val navBackStackEntry by
-    navController.currentBackStackEntryAsState()
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
 
-    val currentRoute =
-        navBackStackEntry?.destination?.route
+    val currentRoute = navBackStackEntry?.destination?.route
 
     val bottomNavigationRoutes = setOf(
         "home",
@@ -89,21 +81,14 @@ fun NavGraph() {
         "todo"
     )
 
-    val showBottomBar =
-        currentRoute in bottomNavigationRoutes
+    val showBottomBar = currentRoute in bottomNavigationRoutes
 
     LaunchedEffect(currentUser) {
-
-        if (
-            currentUser != null &&
-            currentRoute == "login"
-        ) {
+        if (currentUser != null && currentRoute == "login") {
             navController.navigate("home") {
-
                 popUpTo("login") {
                     inclusive = true
                 }
-
                 launchSingleTop = true
             }
         }
@@ -121,47 +106,32 @@ fun NavGraph() {
 
             composable("login") {
 
-                val isLoading by
-                authViewModel.isLoading.collectAsState()
-
-                val errorMessage by
-                authViewModel.errorMessage.collectAsState()
-
-                val successMessage by
-                authViewModel.successMessage.collectAsState()
+                val isLoading by authViewModel.isLoading.collectAsState()
+                val errorMessage by authViewModel.errorMessage.collectAsState()
+                val successMessage by authViewModel.successMessage.collectAsState()
 
                 LoginScreen(
                     onLoginClick = { email, password ->
-
                         authViewModel.login(
                             email = email,
                             password = password
                         )
                     },
                     onRegisterClick = {
-
                         authViewModel.clearMessages()
-
                         navController.navigate("register")
                     },
                     onGoogleSignInClick = {
-
                         authViewModel.clearMessages()
 
                         coroutineScope.launch {
-
                             try {
+                                val credential = googleSignInHelper
+                                    .getGoogleCredential(context)
 
-                                val credential =
-                                    googleSignInHelper
-                                        .getGoogleCredential(context)
-
-                                authViewModel.signInWithGoogle(
-                                    credential
-                                )
+                                authViewModel.signInWithGoogle(credential)
 
                             } catch (exception: Exception) {
-
                                 authViewModel.clearMessages()
 
                                 authViewModel.setErrorMessage(
@@ -179,27 +149,19 @@ fun NavGraph() {
 
             composable("register") {
 
-                val isLoading by
-                authViewModel.isLoading.collectAsState()
-
-                val errorMessage by
-                authViewModel.errorMessage.collectAsState()
-
-                val successMessage by
-                authViewModel.successMessage.collectAsState()
+                val isLoading by authViewModel.isLoading.collectAsState()
+                val errorMessage by authViewModel.errorMessage.collectAsState()
+                val successMessage by authViewModel.successMessage.collectAsState()
 
                 RegisterScreen(
                     onRegisterClick = { email, password ->
-
                         authViewModel.register(
                             email = email,
                             password = password
                         )
                     },
                     onBackClick = {
-
                         authViewModel.clearMessages()
-
                         navController.popBackStack()
                     },
                     isLoading = isLoading,
@@ -217,15 +179,12 @@ fun NavGraph() {
             }
 
             composable("home") {
-
                 HomeScreen(
                     navController = navController,
                     onLogoutClick = {
-
                         authViewModel.logout()
 
                         navController.navigate("login") {
-
                             popUpTo("home") {
                                 inclusive = true
                             }
@@ -240,23 +199,20 @@ fun NavGraph() {
 
             composable("calendar") {
 
-                val habitDao =
-                    DatabaseProvider.database.habitDao()
-
+                val habitDao = DatabaseProvider.database.habitDao()
                 val habitCompletionDao =
                     DatabaseProvider.database.habitCompletionDao()
 
-                val habitRepository =
-                    HabitRepository(
-                        habitDao,
-                        habitCompletionDao
-                    )
+                val habitRepository = HabitRepository(
+                    habitDao,
+                    habitCompletionDao
+                )
 
-                val factory =
-                    HabitViewModelFactory(habitRepository)
+                val factory = HabitViewModelFactory(habitRepository)
 
-                val habitViewModel: HabitViewModel =
-                    viewModel(factory = factory)
+                val habitViewModel: HabitViewModel = viewModel(
+                    factory = factory
+                )
 
                 var habits by remember {
                     mutableStateOf<List<Habit>>(emptyList())
@@ -267,18 +223,13 @@ fun NavGraph() {
                 }
 
                 LaunchedEffect(Unit) {
-
                     habitViewModel.getAllHabits { result ->
-
                         habits = result
 
                         result.forEach { habit ->
-
-                            habitViewModel
-                                .getCompletionsForHabit(habit.id) { result ->
-
-                                    completions = completions + result
-                                }
+                            habitViewModel.getCompletionsForHabit(habit.id) { result ->
+                                completions = completions + result
+                            }
                         }
                     }
                 }
@@ -303,15 +254,12 @@ fun NavGraph() {
             }
 
             composable("settings") {
-
                 SettingsScreen(
                     navController = navController,
                     onLogoutClick = {
-
                         authViewModel.logout()
 
                         navController.navigate("login") {
-
                             popUpTo("home") {
                                 inclusive = true
                             }
@@ -324,12 +272,10 @@ fun NavGraph() {
                 PrivacyScreen(navController)
             }
 
-            // NEW: Terms & Conditions
             composable("terms") {
                 TermsScreen(navController)
             }
 
-            // NEW: App Guidelines
             composable("guidelines") {
                 GuidelinesScreen(navController)
             }
@@ -338,12 +284,28 @@ fun NavGraph() {
                 MoreScreen(navController)
             }
 
+            // Profile screen
+            composable("profile") {
+                ProfileScreen(
+                    navController = navController,
+                    authViewModel = authViewModel
+                )
+            }
+
+            // Edit Profile screen
+            composable("editprofile") {
+                EditProfileScreen(
+                    navController = navController,
+                    authViewModel = authViewModel
+                )
+            }
+
+            // Edit Habit screen
             composable("edit/{habitId}") { backStackEntry ->
 
-                val habitId =
-                    backStackEntry.arguments
-                        ?.getString("habitId")
-                        ?.toIntOrNull()
+                val habitId = backStackEntry.arguments
+                    ?.getString("habitId")
+                    ?.toIntOrNull()
 
                 var selectedHabit by remember {
                     mutableStateOf<Habit?>(null)
@@ -351,34 +313,28 @@ fun NavGraph() {
 
                 if (habitId != null) {
 
-                    val habitDao =
-                        DatabaseProvider.database.habitDao()
-
+                    val habitDao = DatabaseProvider.database.habitDao()
                     val habitCompletionDao =
                         DatabaseProvider.database.habitCompletionDao()
 
-                    val habitRepository =
-                        HabitRepository(
-                            habitDao,
-                            habitCompletionDao
-                        )
+                    val habitRepository = HabitRepository(
+                        habitDao,
+                        habitCompletionDao
+                    )
 
-                    val factory =
-                        HabitViewModelFactory(habitRepository)
+                    val factory = HabitViewModelFactory(habitRepository)
 
-                    val habitViewModel: HabitViewModel =
-                        viewModel(factory = factory)
+                    val habitViewModel: HabitViewModel = viewModel(
+                        factory = factory
+                    )
 
                     LaunchedEffect(habitId) {
-
                         habitViewModel.getHabitById(habitId) { habit ->
-
                             selectedHabit = habit
                         }
                     }
 
                     selectedHabit?.let { habit ->
-
                         EditHabitScreen(
                             navController = navController,
                             habit = habit
@@ -389,26 +345,19 @@ fun NavGraph() {
         }
 
         if (showBottomBar) {
-
             GenZBottomNavigationBar(
                 currentRoute = currentRoute,
                 onItemClick = { route ->
 
                     if (route == "more") {
-
                         navController.navigate("more") {
-
                             launchSingleTop = true
                         }
-
                     } else {
-
                         navController.navigate(route) {
-
                             popUpTo("home") {
                                 saveState = true
                             }
-
                             launchSingleTop = true
                             restoreState = true
                         }

@@ -12,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.BarChart
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -42,6 +43,7 @@ fun MoreScreen(
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.Start
     ) {
+
         IconButton(
             onClick = {
                 navController.popBackStack()
@@ -77,6 +79,19 @@ fun MoreScreen(
 
         Spacer(
             modifier = Modifier.height(24.dp)
+        )
+
+        MoreFeatureCard(
+            icon = Icons.Default.Person,
+            title = "My Profile",
+            description = "View your account and personal information.",
+            onClick = {
+                navController.navigate("profile")
+            }
+        )
+
+        Spacer(
+            modifier = Modifier.height(12.dp)
         )
 
         MoreFeatureCard(
@@ -131,18 +146,21 @@ private fun MoreFeatureCard(
                 MaterialTheme.colorScheme.surfaceVariant
         )
     ) {
+
         TextButton(
             onClick = onClick,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(8.dp)
         ) {
+
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(10.dp),
                 horizontalAlignment = Alignment.Start
             ) {
+
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
