@@ -31,6 +31,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.google.firebase.auth.FirebaseAuth
 import com.mueez.genzhabittracker.R
 import kotlinx.coroutines.delay
 
@@ -38,7 +39,6 @@ import kotlinx.coroutines.delay
 fun SplashScreen(
     navController: NavController
 ) {
-
     var startAnimation by remember {
         mutableStateOf(false)
     }
@@ -112,7 +112,6 @@ fun SplashScreen(
     )
 
     LaunchedEffect(Unit) {
-
         startAnimation = true
 
         delay(700)
@@ -123,10 +122,21 @@ fun SplashScreen(
 
         delay(1000)
 
-        navController.navigate("onboarding") {
+        // Check the existing Firebase authentication session.
+        val currentUser =
+            FirebaseAuth.getInstance().currentUser
+
+        val destination = when {
+            currentUser != null -> "home"
+            else -> "onboarding"
+        }
+
+        navController.navigate(destination) {
             popUpTo("splash") {
                 inclusive = true
             }
+
+            launchSingleTop = true
         }
     }
 
@@ -135,7 +145,6 @@ fun SplashScreen(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-
         Image(
             painter = painterResource(
                 id = R.drawable.genzhabit_logo
