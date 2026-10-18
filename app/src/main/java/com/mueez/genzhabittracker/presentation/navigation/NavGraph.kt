@@ -284,7 +284,7 @@ fun NavGraph() {
                 MoreScreen(navController)
             }
 
-            // Profile screen
+
             composable("profile") {
                 ProfileScreen(
                     navController = navController,
@@ -292,7 +292,7 @@ fun NavGraph() {
                 )
             }
 
-            // Edit Profile screen
+
             composable("editprofile") {
                 EditProfileScreen(
                     navController = navController,
@@ -300,7 +300,7 @@ fun NavGraph() {
                 )
             }
 
-            // Edit Habit screen
+
             composable("edit/{habitId}") { backStackEntry ->
 
                 val habitId = backStackEntry.arguments
